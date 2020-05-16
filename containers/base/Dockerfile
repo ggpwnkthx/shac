@@ -1,10 +1,10 @@
 FROM alpine:3.10
 
 RUN apk update
-RUN apk install ipcalc
-RUN apk install expect
-RUN apk install curl
-RUN apk install jq
+RUN apk add ipcalc
+RUN apk add expect
+RUN apk add curl
+RUN apk add jq
 
 ADD generate-name.sh /usr/bin/generate-name
 RUN chmod +x /usr/bin/generate-name
