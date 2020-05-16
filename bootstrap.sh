@@ -18,21 +18,21 @@ BASEPATH=$( cd ${0%/*} && pwd -P )
 build_container_images() {
     if [ "$(docker image inspect local/base 2>/dev/null)" = "[]" ]; then 
         cd $BASEPATH/containers/base
-        docker build . -t local/base
+        sudo docker build . -t local/base
     fi
     for img in $(ls -1 $BASEPATH/containers/local); do
         if [ -d $BASEPATH/containers/local/$img ]; then
             if [ "$(docker image inspect local/$img 2>/dev/null)" = "[]" ]; then 
                 cd $BASEPATH/containers/local/$img
-                docker build . -t local/$img
+                sudo docker build . -t local/$img
             fi
         fi
     done
 }
 
 link_toolkit() {
-    chmod +x $BASEPATH/scripts/toolkit.sh
-    ln -s $BASEPATH/scripts/toolkit.sh /usr/bin/toolkit
+    sudo chmod +x $BASEPATH/scripts/toolkit.sh
+    sudo ln -s $BASEPATH/scripts/toolkit.sh /usr/bin/toolkit
 }
 
 bootstrap() {
@@ -40,4 +40,4 @@ bootstrap() {
     link_toolkit
 }
 
-sudo bootstrap
+bootstrap
