@@ -38,7 +38,7 @@ network_config() {
     docker run --rm \
         --cap-add NET_ADMIN \
         --net=host \
-        -v /srv/cluster/local:/mnt/local
+        -v /srv/cluster/local:/mnt/local \
         local/network-manager \
         setup-orch-net.sh $orch_vlan_link $orch_vlan_name $orch_vlan_id $cidr
 }
