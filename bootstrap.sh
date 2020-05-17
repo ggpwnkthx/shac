@@ -40,7 +40,7 @@ network_config() {
         --net=host \
         -v /srv/cluster/local:/mnt/local \
         local/network-manager \
-        setup-orch-net.sh $orch_vlan_link $orch_vlan_name $orch_vlan_id $cidr
+        setup-orch-net $orch_vlan_link $orch_vlan_name $orch_vlan_id $cidr
 }
 
 fix_docker_bridge() {
