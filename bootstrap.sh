@@ -12,18 +12,14 @@ BASEPATH=$( cd ${0%/*} && pwd -P )
 
 # Build all the container images located in the containers/local directory reletive to this script
 build_container_images() {
-    if [ "$(docker image inspect local/base 2>/dev/null)" = "[]" ]; then 
-        cd $BASEPATH/containers/base
-        docker build . -t local/base
-    fi
-    for img in $(ls -1 $BASEPATH/containers/local); do
-        if [ -d $BASEPATH/containers/local/$img ]; then
-            if [ "$(docker image inspect local/$img 2>/dev/null)" = "[]" ]; then 
-                cd $BASEPATH/containers/local/$img
-                docker build . -t local/$img
-            fi
+    cd $BASEPATH/containers/base
+    docker build . -t local/base
+    if [ -d $BASEPATH/containers/local/$img ]; then
+        if [ "$(docker image inspect local/$img 2>/dev/null)" = "[]" ]; then 
+            cd $BASEPATH/containers/local/$img
+            docker build . -t local/$img
         fi
-    done
+    fi
 }
 
 # Restart docker daemon in the most convenient way available
