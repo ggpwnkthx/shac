@@ -27,7 +27,7 @@ for i in $(echo $1 | awk -F. '{print $1" "$2" "$3" "$4}'); do
 done
 IPNUM=$(echo "ibase=2;obase=A;$IPNUM" | bc)
 
-IPNUM=$(($IPNUM$2)))
+IPNUM=$(($IPNUM$2))
 
 IPNUM=$(echo "obase=2;$IPNUM" | bc)
 if [ $(echo -n $IPNUM | wc -m) -gt 32 ]; then
