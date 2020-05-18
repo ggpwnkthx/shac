@@ -30,12 +30,12 @@ fi
 # If we didn't talk to a DHCP server, then we assumer we're the first on the network
 IP2=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
 if [ -z "$IP2" ]; then
-    if [ -f /mtn/local/ip ]; then
-        IP3=$(cat /mtn/local/ip)
+    if [ -f /mnt/local/ip ]; then
+        IP3=$(cat /mnt/local/ip)
     else
         IP3=$(shift-ip $(ipcalc $CIDR | grep HostMin | awk '{print $2}') +1)/$BITMASK
         # Save our IP address
-        echo $IP3 > /mtn/local/ip
+        echo $IP3 > /mnt/local/ip
     fi
     ip addr add $IP3 dev $VLAN_NAME
 fi
