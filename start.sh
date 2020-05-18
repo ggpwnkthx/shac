@@ -59,6 +59,16 @@ fix_docker_bridge() {
     restart_docker
 }
 
+# Enable the ip_vs kernel module
+enable_ipvs() {
+    if [ ! -f /etc/modules-load.d/ip_vs.conf ]; then
+        echo ip_vs > /etc/modules-load.d/ip_vs.conf
+    fi
+    if [ -z "$(cat /proc/modules | grep '^ip_vs ')" ]; then
+        modprobe ip_vs
+    fi
+}
+
 bootstrap() {
     mkdir -p $DATA_DIR/local
     build_container_images
@@ -67,6 +77,7 @@ bootstrap() {
     fi
     network_config
     fix_docker_bridge
+    enable_ipvs
     touch $DATA_DIR/local/bootstrap_complete
 }
 
