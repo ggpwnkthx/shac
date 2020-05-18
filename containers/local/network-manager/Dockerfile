@@ -1,4 +1,4 @@
-FROM shac:base
+FROM shac/base
 
 RUN apk add ipcalc
 RUN apk add iproute2w
