@@ -1,7 +1,7 @@
-FROM local/base
+FROM shac:base
 
 RUN apk add ipcalc
-RUN apk add iproute2
+RUN apk add iproute2w
 RUN apk add dhclient
 
 ADD generate-name.sh /usr/bin/generate-name

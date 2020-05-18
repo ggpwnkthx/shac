@@ -13,11 +13,11 @@ BASEPATH=$( cd ${0%/*} && pwd -P )
 # Build all the container images located in the containers/local directory reletive to this script
 build_container_images() {
     cd $BASEPATH/containers/base
-    docker build --no-cache . -t shac-base
+    docker build --no-cache . -t shac:base
     if [ -d $BASEPATH/containers/local/$img ]; then
         if [ "$(docker image inspect local/$img 2>/dev/null)" = "[]" ]; then 
             cd $BASEPATH/containers/local/$img
-            docker build --no-cache . -t shac-$img
+            docker build --no-cache . -t shac:$img
         fi
     fi
 }
