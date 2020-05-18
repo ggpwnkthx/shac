@@ -13,7 +13,7 @@ if [ 24 -lt $(echo $CIDR | awk -F/ '{print $2}') ]; then
     echo ""
     exit 1
 fi
-BITMASK=$(($(echo $cidr | awk -F/ '{print $2}') + 2))
+BITMASK=$(($(echo $CIDR | awk -F/ '{print $2}') + 2))
 
 # Add the vlan interface if it doesn't exist
 if [ -z "$(ip link show $VLAN_NAME)" ]; then
