@@ -17,7 +17,7 @@ exit 1
 if [ -z "$2" ]; then usage; fi
 if [ -z "$(echo $1 | awk -F. '{print $4}')"]; then usage; fi
 for num in $(echo $1 | awk -F. '{print $1" "$2" "$3" "$4}'); do
-    if $num -gt 255; then usage; fi
+    if [ $num -gt 255 ]; then usage; fi
 done
 
 # Process
