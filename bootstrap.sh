@@ -35,7 +35,7 @@ network_config() {
         --cap-add NET_ADMIN \
         --net=host \
         -v /srv/cluster/local:/mnt/local \
-        local/network-manager \
+        shac/network-manager \
         setup-orch-net $orch_vlan_link $orch_vlan_name $orch_vlan_id $cidr
 }
 
