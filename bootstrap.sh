@@ -13,11 +13,11 @@ BASEPATH=$( cd ${0%/*} && pwd -P )
 # Build all the container images located in the containers/local directory reletive to this script
 build_container_images() {
     cd $BASEPATH/containers/base
-    docker build . -t local/base
+    docker build . -t shac/base
     for img in $(ls -1 $BASEPATH/containers/local); do
         if [ -d $BASEPATH/containers/local/$img ]; then
             cd $BASEPATH/containers/local/$img
-            docker build . -t local/$img
+            docker build . -t shac/$img
         fi
     done
 }
