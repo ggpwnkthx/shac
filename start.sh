@@ -60,11 +60,11 @@ fix_docker_bridge() {
 }
 
 bootstrap() {
+    mkdir -p $DATA_DIR/local
+    build_container_images
     if [ -z "$(cat /etc/hostname | awk -F- '{print $2}')" ]; then
         update_hostname $(docker run --rm shac/network-manager generate-name)
     fi
-    mkdir -p $DATA_DIR/local
-    build_container_images
     network_config
     fix_docker_bridge
     touch $DATA_DIR/local/bootstrap_complete
