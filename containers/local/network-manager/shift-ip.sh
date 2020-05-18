@@ -4,11 +4,11 @@
 usage() {
     cat >&2 <<-'EOF'
 Usage:
-shift_ip [ip address] [shift amount]
+shift-ip ip-address shift-amount
 
 Examples:
-shift_ip 192.168.45.16 +10
-shift_ip 192.168.45.16 -64
+shift-ip 192.168.45.16 +10
+shift-ip 192.168.45.16 -64
 EOF
 exit 1
 }
