@@ -49,7 +49,6 @@ update_hostname() {
 
 # Adjust the docker bridge network used for local containers
 fix_docker_bridge() {
-    DOCKER_LOCAL_BRIDGE_CIDR
     if [ -f /etc/docker/daemon.json ]; then
         if [ -z "$(cat /etc/docker/daemon.json)" ]; then 
             json="{ }"
@@ -59,7 +58,8 @@ fix_docker_bridge() {
     else
         json="{ }"
     fi
-    echo $json | jq --arg ip $DOCKER_LOCAL_BRIDGE_CIDR '.bip=$ip'
+    DOCKER_LOCAL_BRIDGE_CIDR >/dev/null
+    echo $json | jq --arg ip $DOCKER_LOCAL_BRIDGE_CIDR '.bip=$ip' > /etc/docker/daemon.json
 }
 
 bootstrap_network() {
