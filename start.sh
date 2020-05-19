@@ -35,6 +35,7 @@ startup_storage() {
 bootstrap_local() {
     # Skip bootstrap if it's already been done
     if [ ! -f $DATA_DIR/local/bootstrap_complete ]; then 
+        chmod +x $BASEPATH/scripts/bootstrap_local.sh
         $BASEPATH/scripts/bootstrap_local.sh \
             $BASEPATH \
             $DATA_DIR \
@@ -47,6 +48,7 @@ bootstrap_local() {
 }
 bootstrap_swarm() {
     if [ ! -f $DATA_DIR/swarm/bootstrap_complete ]; then 
+        chmod +x $BASEPATH/scripts/bootstrap_swarm.sh
         $BASEPATH/scripts/bootstrap_swarm.sh \
             $BASEPATH \
             $DATA_DIR \
