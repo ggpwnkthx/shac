@@ -49,7 +49,7 @@ update_hostname() {
 
 # Adjust the docker bridge network used for local containers
 fix_docker_bridge() {
-    $(DOCKER_LOCAL_BRIDGE_CIDR)
+    DOCKER_LOCAL_BRIDGE_CIDR
     if [ -f /etc/docker/daemon.json ]; then
         if [ -z "$(cat /etc/docker/daemon.json)" ]; then 
             json="{ }"
