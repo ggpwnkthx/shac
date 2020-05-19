@@ -18,7 +18,7 @@ DOCKER_LOCAL_BRIDGE_CIDR() {
 }
 
 # Use docker containers for tool abstraction
-internal_jq() { 
+jq() { 
     docker run -i --rm shac/base jq $@ 
 }
 ipcalc() { 
