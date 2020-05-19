@@ -19,7 +19,6 @@ DOCKER_LOCAL_BRIDGE_CIDR() {
 
 # Use docker containers for tool abstraction
 jq() { 
-    set -x
     docker run -i --rm shac/base jq $@ 
 }
 ipcalc() { 
@@ -59,6 +58,7 @@ fix_docker_bridge() {
     else
         json="{ }"
     fi
+    set -x
     echo $json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '."bip"=$ip' > /etc/docker/daemon.json
 }
 
