@@ -29,7 +29,7 @@ startup_networking() {
 }
 
 startup_storage() {
-    echo ..
+    echo "do storage things..."
 }
 
 bootstrap_local() {

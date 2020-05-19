@@ -12,7 +12,7 @@ DOMAIN=$7
 # Dynamic Variables
 DOCKER_LOCAL_BRIDGE_CIDR() {
     if [ -z "$DOCKER_LOCAL_BRIDGE_CIDR" ]; then
-        DOCKER_LOCAL_BRIDGE_CIDR=$(shift-ip $(ipcalc $(echo $CIDR | awk -F/ '{print $1"/"$2+2}') | grep Broadcast | awk '{print $2}') 2)/$(echo $CIDR | awk -F/ '{print $2+2}')
+        DOCKER_LOCAL_BRIDGE_CIDR=$(shift_ip $(ipcalc $(echo $CIDR | awk -F/ '{print $1"/"$2+2}') | grep Broadcast | awk '{print $2}') 2)/$(echo $CIDR | awk -F/ '{print $2+2}')
     fi
     echo $DOCKER_LOCAL_BRIDGE_CIDR
 }
@@ -24,7 +24,7 @@ jq() {
 ipcalc() { 
     docker run -i --rm shac/network-manager ipcalc $@ 
 }
-shift-ip() { 
+shift_ip() { 
     docker run -i --rm shac/network-manager shift-ip $@ 
 }
 generate-name() { 
