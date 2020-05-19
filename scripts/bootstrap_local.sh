@@ -58,8 +58,8 @@ fix_docker_bridge() {
     else
         json="{ }"
     fi
-    set -x
-    echo $json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '."bip"=$ip' > /etc/docker/daemon.json
+    json=$(echo $json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '."bip"=$ip')
+    echo $json
 }
 
 bootstrap_network() {
