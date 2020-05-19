@@ -27,7 +27,7 @@ ipcalc() {
 shift_ip() { 
     docker run -i --rm shac/network-manager shift-ip $@ 
 }
-generate-name() { 
+generate_name() { 
     docker run -i --rm shac/network-manager generate-name $@ 
 }
 
@@ -56,7 +56,7 @@ fix_docker_bridge() {
 
 bootstrap_network() {
     if [ -z "$(cat /etc/hostname | grep $DOMAIN)" ]; then
-        update_hostname $(generate-name).$DOMAIN
+        update_hostname $(generate_name).$DOMAIN
     fi
     enable_ipvs
     fix_docker_bridge
