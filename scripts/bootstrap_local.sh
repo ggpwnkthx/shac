@@ -44,7 +44,7 @@ enable_ipvs() {
 update_hostname() {
     echo $1.$DOMAIN > /etc/hostname
     hostname $(cat /etc/hostname)
-    sed -i "/^127.0.1.1/c\127.0.1.1 $(hostname)" /etc/hosts
+    sed -i "/^127.0.1.1/c\127.0.1.1 $(hostname -f) $(hostname -s)" /etc/hosts
 }
 
 # Restart docker daemon in the most convenient way available
