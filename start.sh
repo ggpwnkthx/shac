@@ -56,7 +56,7 @@ bootstrap_swarm() {
     fi
 }
 
-start_up_sequence() {
+startup_sequence() {
     bootstrap_local
     startup_networking
     bootstrap_swarm
