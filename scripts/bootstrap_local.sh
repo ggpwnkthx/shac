@@ -47,19 +47,11 @@ update_hostname() {
     sed -i "/^127.0.1.1/c\127.0.1.1 $(hostname -f) $(hostname -s)" /etc/hosts
 }
 
-# Restart docker daemon in the most convenient way available
-restart_docker() {
-    if [ -f /etc/init.d/docker ]; then /etc/init.d/docker restart; return; fi
-    if [ ! -z "$(which service)" ]; then service docker restart; return; fi
-    if [ ! -z "$(which systemctl)" ]; then systemctl restart docker.service; return; fi
-}
-
 # Adjust the docker bridge network used for local containers
 fix_docker_bridge() {
     touch /etc/docker/daemon.json
     if [ -z "$(cat /etc/docker/daemon.json)" ]; then echo "{ }" > /etc/docker/daemon.json; fi
     cat /etc/docker/daemon.json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '."bip"=$ip' > /etc/docker/daemon.json
-    restart_docker
 }
 
 bootstrap_network() {

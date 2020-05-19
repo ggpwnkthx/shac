@@ -9,6 +9,13 @@ ORCH_VLAN_NAME=${ORCH_VLAN_NAME:="orchestration"}
 CIDR=${CIDR:="10.2.0.0/20"}
 DOMAIN=${DOMAIN:="example.com"}
 
+# Restart docker daemon in the most convenient way available
+restart_docker() {
+    if [ -f /etc/init.d/docker ]; then /etc/init.d/docker restart; return; fi
+    if [ ! -z "$(which service)" ]; then service docker restart; return; fi
+    if [ ! -z "$(which systemctl)" ]; then systemctl restart docker.service; return; fi
+}
+
 # Use the network-manager image to configure the host's network interfaces
 startup_orchstration_vlan() {
     # Skip config if our expected IP address is already reachable
@@ -26,6 +33,7 @@ startup_orchstration_vlan() {
 
 startup_networking() {
     startup_orchstration_vlan
+    restart_docker
 }
 
 startup_storage() {

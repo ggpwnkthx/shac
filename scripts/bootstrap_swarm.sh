@@ -45,6 +45,10 @@ init_docker_swarm() {
     fi
 }
 
+service_discovery() {
+    echo "do service discovery things..."
+}
+
 bootstrap() {
     # Use service discovery to bootstrap or join the cluster
     if [ ! -f $DATA_DIR/swarm/bootstrap_complete ]; then
