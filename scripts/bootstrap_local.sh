@@ -55,7 +55,7 @@ fix_docker_bridge() {
 }
 
 bootstrap_network() {
-    if [ -z "$(cat /etc/hostname | grep $DOMAIN)" ]; then
+    if [ -z "$(cat /etc/hostname | grep $(echo $DOMAIN))" ]; then
         update_hostname $(generate_name).$DOMAIN
     fi
     enable_ipvs
