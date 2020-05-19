@@ -58,7 +58,7 @@ restart_docker() {
 fix_docker_bridge() {
     touch /etc/docker/daemon.json
     if [ -z "$(cat /etc/docker/daemon.json)" ]; then echo "{ }" > /etc/docker/daemon.json; fi
-    cat /etc/docker/daemon.json | docker run -i --rm shac/base jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '."bip"=$ip' > /etc/docker/daemon.json
+    cat /etc/docker/daemon.json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '."bip"=$ip' > /etc/docker/daemon.json
     restart_docker
 }
 
