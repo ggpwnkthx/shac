@@ -19,7 +19,7 @@ DOCKER_LOCAL_BRIDGE_CIDR() {
 
 # Use docker containers for tool abstraction
 jq() { 
-    docker run -i shac/base jq $@ 
+    docker run -i --rm shac/base jq $@ 
 }
 ipcalc() { 
     docker run -i --rm shac/network-manager ipcalc $@ 
@@ -58,10 +58,8 @@ fix_docker_bridge() {
     else
         json="{ }"
     fi
-    echo $json
-    echo $(DOCKER_LOCAL_BRIDGE_CIDR)
-    json=$(echo $json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) ".bip=\$ip")
-    echo $json
+    sleep 5
+    echo $json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '.bip=$ip'
 }
 
 bootstrap_network() {
