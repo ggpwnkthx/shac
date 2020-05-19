@@ -60,7 +60,7 @@ fix_docker_bridge() {
     fi
     echo $json
     echo $(DOCKER_LOCAL_BRIDGE_CIDR)
-    json=$(echo $json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) '."bip"=$ip')
+    json=$(echo $json | jq --arg ip $(DOCKER_LOCAL_BRIDGE_CIDR) ".bip=\$ip")
     echo $json
 }
 
