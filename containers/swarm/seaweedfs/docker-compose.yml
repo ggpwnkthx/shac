@@ -1,0 +1,60 @@
+version: "3.8"
+services:
+  master:
+    image: seaweedfs
+    deploy:
+      mode: global
+    environment:
+      - MAX_VOLUME_SIZE=128
+      - REPLICATION=002
+    volumes:
+      - ${SEAWEEDFS_DIR}/master:/data/snapshot
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  volume:
+    image: seaweedfs
+    deploy:
+      mode: global
+    environment:
+      - MAX_VOLUMES=4
+    volumes:
+      - ${SEAWEEDFS_DIR}/volumes:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  filer:
+    image: seaweedfs
+    deploy:
+      mode: global
+    volumes:
+      - ${SEAWEEDFS_DIR}/filer:/data
+      - ${SEAWEEDFS_DIR}/config/filer.toml:/etc/seaweedfs/filer.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      master:
+        condition: service_healthy
+  mount:
+    image: seaweedfs
+    deploy:
+      mode: global
+    volumes:
+      - ${SEAWEEDFS_DIR}/mount:/mnt
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      filer:
+        condition: service_healthy

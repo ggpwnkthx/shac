@@ -4,6 +4,8 @@ VLAN_NAME=$2
 VLAN_ID=$3
 CIDR=$4
 
+CONFIG_PATH=/mnt/config
+
 if [ 24 -lt $(echo $CIDR | awk -F/ '{print $2}') ]; then
     echo ""
     echo "The provided bit mask of /$(echo $CIDR | awk -F/ '{print $2}') is too low for practical use."
@@ -15,27 +17,38 @@ if [ 24 -lt $(echo $CIDR | awk -F/ '{print $2}') ]; then
 fi
 BITMASK=$(($(echo $CIDR | awk -F/ '{print $2}') + 2))
 
+get_lease_option() {
+    echo $(cat /var/lib/dhcp/dhclient.leases | grep "^option $1" | awk '{print $3}' | sed 's/.$//')
+}
+
+# Add or update config value
+config_set() {
+    grep -q '^$1' $CONFIG_PATH && sed -i 's/^$1.*/$1=$2/' $CONFIG_PATH || echo "$1=$2" >> $CONFIG_PATH
+}
+
 # Add the vlan interface if it doesn't exist
 if [ -z "$(ip link show $VLAN_NAME)" ]; then
     ip link add link $VLAN_LINK name $VLAN_NAME type vlan id $VLAN_ID
 fi
 
-# If no IP is detected, use dhclient to get one
-IP1=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
-if [ -z "$IP1" ]; then
-    echo "timeout 10;" > /etc/dhcp/dhclient.conf
-    dhclient -1 $VLAN_NAME
-fi
-
-# If we didn't talk to a DHCP server, then we assumer we're the first on the network
-IP2=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
-if [ -z "$IP2" ]; then
-    if [ -f /mnt/local/ip ]; then
-        IP3=$(cat /mnt/local/ip)
-    else
-        IP3=$(shift-ip $(ipcalc $CIDR | grep HostMin | awk '{print $2}') +1)/$BITMASK
-        # Save our IP address
-        echo $IP3 > /mnt/local/ip
+# Check for pre-existing configuration
+IP=$(cat $CONFIG_PATH |  grep "^CIDR=" | awk -F= '{print $2}' )
+if [ -z "$IP" ]; then
+    # If no IP is detected, use dhclient to get one
+    IP=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
+        echo "timeout 10;" > /etc/dhcp/dhclient.conf
+        dhclient -1 $VLAN_NAME
     fi
-    ip addr add $IP3 dev $VLAN_NAME
+
+    # If we didn't talk to a DHCP server, then we assumer we're the first on the network
+    IP=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
+    if [ -z "$IP" ]; then
+        IP=$(shift-ip $(ipcalc $CIDR | grep HostMin | awk '{print $2}') +1)/$BITMASK
+    else
+        config_set DNS_SERVER_IP $(get_lease_option dhcp-server-identifier)
+        config_set DOMAIN $(get_lease_option domain-name)
+    fi
+    # Save our IP address
+    config_set CIDR $IP
 fi
+ip addr add $IP dev $VLAN_NAME

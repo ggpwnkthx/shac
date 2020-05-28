@@ -3,9 +3,14 @@
 # Default variables
 BASEPATH=$1
 DATA_DIR=$2
-ORCH_VLAN_NAME=$3
-CIDR=$4
-DOMAIN=$5
+if [ -f $DATA_DIR/config ]; then
+    source $DATA_DIR/config
+fi
+ORCH_VLAN_LINK=${ORCH_VLAN_LINK:=$3}
+ORCH_VLAN_ID=${ORCH_VLAN_ID:=$4}
+ORCH_VLAN_NAME=${ORCH_VLAN_NAME:=$5}
+CIDR=${CIDR:=$6}
+DOMAIN=${DOMAIN:=$7}
 
 # Dynamic Variables
 DOCKER_LOCAL_BRIDGE_CIDR() {
@@ -28,6 +33,26 @@ ipcalc() {
 shift_ip() { 
     docker run -i --rm shac/network-manager shift-ip $@ 
 }
+dig() {
+    docker run -i --rm shac/network-manager dig $@ 
+}
+
+service_discovery() {
+    if [ ! -z "$DNS_SERVER_IP" ]; then
+        DOCKER_SWARM_MANAGER_TOKEN=$(dig _manager._swarm.$DOMAIN TXT @$DNS_SERVER_IP)
+        DOCKER_SWARM_PORT=$(dig _swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
+    fi
+}
+
+# Build all the container images located in the containers/swarm directory reletive to this script
+build_container_images() {
+    for img in $(ls -1 $BASEPATH/containers/swarm); do
+        if [ -d $BASEPATH/containers/swarm/$img ]; then
+            cd $BASEPATH/containers/swarm/$img
+            docker build . -t shac/$img
+        fi
+    done
+}
 
 # Initialize the docker swarm
 init_docker_swarm() {
@@ -45,21 +70,29 @@ init_docker_swarm() {
     fi
 }
 
-service_discovery() {
-    echo "do service discovery things..."
+bootstrap_distributed_storage() {
+    mkdir -p $DATA_DIR/seaweedfs/config
+    mkdir -p $DATA_DIR/seaweedfs/master
+    mkdir -p $DATA_DIR/seaweedfs/volumes
+    mkdir -p $DATA_DIR/seaweedfs/filer
+    mkdir -p $DATA_DIR/seaweedfs/mount
+    export SEAWEEDFS_DIR=$DATA_DIR/seaweedfs
+    docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml $SEAWEEDFS_DIR
+}
+
+# Join an existing docker swarm
+join_docker_swarm() {
+    docker swarm join --token $DOCKER_SWARM_MANAGER_TOKEN $DNS_SERVER_IP:$DOCKER_SWARM_PORT
 }
 
 bootstrap() {
     # Use service discovery to bootstrap or join the cluster
-    if [ ! -f $DATA_DIR/swarm/bootstrap_complete ]; then
-        mkdir -p $DATA_DIR/swarm
-        service_discovery
-        if [ -z "$DOCKER_SWARM_MANAGER_IP" ]; then
-            init_docker_swarm
-        else
-            join_docker_swarm
-        fi
-        touch $DATA_DIR/swarm/bootstrap_complete
+    service_discovery
+    if [ -z "$DOCKER_SWARM_MANAGER_JOIN" ]; then
+        init_docker_swarm
+        bootstrap_distributed_storage
+    else
+        join_docker_swarm
     fi
 }
 
