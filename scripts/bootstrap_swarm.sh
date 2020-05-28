@@ -65,8 +65,8 @@ init_docker_swarm() {
             -o com.docker.network.bridge.enable_ip_masquerade=true \
             docker_gwbridge
         docker swarm init \
-            --listen-addr $ORCH_VLAN_NAME:2377 \
-            --advertise-addr $ORCH_VLAN_NAME:2377 >/dev/null
+            --listen-addr $(echo $CIDR | awk -F/ '{print $1}'):2377 \
+            --advertise-addr $(echo $CIDR | awk -F/ '{print $1}'):2377 >/dev/null
     fi
 }
 

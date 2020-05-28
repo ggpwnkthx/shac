@@ -21,7 +21,7 @@ restart_docker() {
 
 # Add or update config value
 config_set() {
-    grep -q '^$1' $DATA_DIR/config && sed -i 's/^$1.*/$1=$2/' $DATA_DIR/config || echo "$1=$2" >> $DATA_DIR/config
+    grep -q '^$1' $DATA_DIR/config && sed -i "s/^$1.*/$1=$2/" $DATA_DIR/config || echo "$1=$2" >> $DATA_DIR/config
 }
 
 # Use the network-manager image to configure the host's network interfaces
