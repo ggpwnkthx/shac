@@ -91,7 +91,6 @@ bootstrap_swarm() {
 }
 
 startup_sequence() {
-    restart_docker
     bootstrap_local
     startup_networking
     bootstrap_swarm
