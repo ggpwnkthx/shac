@@ -76,8 +76,7 @@ bootstrap_distributed_storage() {
     mkdir -p $DATA_DIR/seaweedfs/volumes
     mkdir -p $DATA_DIR/seaweedfs/filer
     mkdir -p $DATA_DIR/seaweedfs/mount
-    export SEAWEEDFS_DIR=$DATA_DIR/seaweedfs
-    docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml $SEAWEEDFS_DIR
+    env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs 
 }
 
 # Join an existing docker swarm
