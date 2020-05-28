@@ -21,7 +21,6 @@ restart_docker() {
 
 # Add or update config value
 config_set() {
-    
     grep -q '^$1' $DATA_DIR/config && sed -i 's/^$1.*/$1=$2/' $DATA_DIR/config || echo "$1=$2" >> $DATA_DIR/config
 }
 
@@ -65,6 +64,7 @@ startup_storage() {
 
 bootstrap_local() {
     mkdir -p $DATA_DIR
+    touch $DATA_DIR/config
     # Skip bootstrap if it's already been done
     if [ -z "$BOOTSTRAP_LOCAL" ]; then 
         chmod +x $BASEPATH/scripts/bootstrap_local.sh

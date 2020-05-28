@@ -48,7 +48,8 @@ fix_docker_bridge() {
     else
         json="{ }"
     fi
-    echo "Using $(DOCKER_LOCAL_BRIDGE_CIDR)"
+    DOCKER_LOCAL_BRIDGE_CIDR
+    echo "Using $DOCKER_LOCAL_BRIDGE_CIDR"
     echo $json | jq --arg ip $DOCKER_LOCAL_BRIDGE_CIDR '.bip=$ip' > /etc/docker/daemon.json
 }
 
