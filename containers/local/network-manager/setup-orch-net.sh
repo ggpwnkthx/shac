@@ -36,6 +36,7 @@ IP=$(cat $CONFIG_PATH |  grep "^CIDR=" | awk -F= '{print $2}' )
 if [ -z "$IP" ]; then
     # If no IP is detected, use dhclient to get one
     IP=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
+    if [ -z "$IP" ]; then
         echo "timeout 10;" > /etc/dhcp/dhclient.conf
         dhclient -1 $VLAN_NAME
     fi
