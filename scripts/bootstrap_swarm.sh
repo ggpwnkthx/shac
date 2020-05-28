@@ -4,7 +4,7 @@
 BASEPATH=$1
 DATA_DIR=$2
 if [ -f $DATA_DIR/config ]; then
-    source $DATA_DIR/config
+    . $DATA_DIR/config
 fi
 ORCH_VLAN_LINK=${ORCH_VLAN_LINK:=$3}
 ORCH_VLAN_ID=${ORCH_VLAN_ID:=$4}

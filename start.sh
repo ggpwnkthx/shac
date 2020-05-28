@@ -4,7 +4,7 @@
 BASEPATH=$( cd ${0%/*} && pwd -P )
 DATA_DIR=${DATA_DIR:="/srv/cluster"}
 if [ -f $DATA_DIR/config ]; then
-    source $DATA_DIR/config
+    . $DATA_DIR/config
 fi
 ORCH_VLAN_LINK=${ORCH_VLAN_LINK:="eth0"}
 ORCH_VLAN_ID=${ORCH_VLAN_ID:=2}
