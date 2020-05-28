@@ -87,6 +87,7 @@ join_docker_swarm() {
 bootstrap() {
     # Use service discovery to bootstrap or join the cluster
     service_discovery
+    build_container_images
     if [ -z "$DOCKER_SWARM_MANAGER_JOIN" ]; then
         init_docker_swarm
         bootstrap_distributed_storage
