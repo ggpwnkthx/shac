@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   master:
-    image: seaweedfs
+    image: shac/seaweedfs
     deploy:
       mode: global
     environment:
@@ -17,7 +17,7 @@ services:
       retries: 3
       start_period: 40s
   volume:
-    image: seaweedfs
+    image: shac/seaweedfs
     deploy:
       mode: global
     environment:
@@ -32,7 +32,7 @@ services:
       retries: 3
       start_period: 40s
   filer:
-    image: seaweedfs
+    image: shac/seaweedfs
     deploy:
       mode: global
     volumes:
@@ -46,7 +46,7 @@ services:
       retries: 3
       start_period: 40s
   mount:
-    image: seaweedfs
+    image: shac/seaweedfs
     deploy:
       mode: global
     volumes:
