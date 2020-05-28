@@ -3,7 +3,7 @@ FROM shac/base
 RUN apk add ipcalc
 RUN apk add iproute2
 RUN apk add dhclient
-RUN apk add dig
+RUN apk add bind-tools
 
 ADD generate-name.sh /usr/bin/generate-name
 RUN chmod +x /usr/bin/generate-name
