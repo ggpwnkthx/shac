@@ -8,7 +8,11 @@ DOMAIN=$3
 # Dynamic Variables
 DOCKER_LOCAL_BRIDGE_CIDR() {
     if [ -z "$DOCKER_LOCAL_BRIDGE_CIDR" ]; then
-        DOCKER_LOCAL_BRIDGE_CIDR=$(shift_ip $(ipcalc $(echo $CIDR | awk -F/ '{print $1"/"$2+2}') | grep Broadcast | awk '{print $2}') 2)/$(echo $CIDR | awk -F/ '{print $2+2}')
+        local_cidr=$(echo $CIDR | awk -F/ '{print $1"/"$2+2}')
+        local_brodcast=$(ipcalc $local_cidr | grep Broadcast | awk '{print $2}')
+        docker_ip=$(shift_ip $local_brodcast 2)
+        bitmask=$(echo $local_cidr | awk -F/ '{print $2}')
+        DOCKER_LOCAL_BRIDGE_CIDR=$docker_ip/$bitmask
     fi
     echo $DOCKER_LOCAL_BRIDGE_CIDR
 }
@@ -44,7 +48,7 @@ fix_docker_bridge() {
     else
         json="{ }"
     fi
-    DOCKER_LOCAL_BRIDGE_CIDR >/dev/null
+    echo "Using $(DOCKER_LOCAL_BRIDGE_CIDR)"
     echo $json | jq --arg ip $DOCKER_LOCAL_BRIDGE_CIDR '.bip=$ip' > /etc/docker/daemon.json
 }
 
