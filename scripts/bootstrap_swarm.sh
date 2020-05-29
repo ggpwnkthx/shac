@@ -76,6 +76,11 @@ bootstrap_distributed_storage() {
     mkdir -p $DATA_DIR/seaweedfs/volumes
     mkdir -p $DATA_DIR/seaweedfs/filer
     mkdir -p $DATA_DIR/seaweedfs/mount
+    cat << EOF > $DATA_DIR/seaweedfs/config/filer.toml
+[leveldb2]
+enabled = true
+dir = "/data"
+EOF
     env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs 
 }
 
