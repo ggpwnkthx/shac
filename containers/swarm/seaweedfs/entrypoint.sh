@@ -44,27 +44,27 @@ case "$SERVICE" in
         ARGS="$ARGS -port=80 -mdir=/data -volumePreallocate"
         if [ ! -z "$MAX_VOLUME_SIZE" ]; then ARGS="$ARGS -volumeSizeLimitMB=$MAX_VOLUME_SIZE"; fi
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
-        if [ $(get_masters | wc -m) -gt 1 ]; then 
+        if [ $(get_masters | wc -w) -gt 0 ]; then 
             ARGS="$ARGS -peers=$(get_masters)"
         fi
     ;;
     'volume')
+        while [ $(get_masters | wc -w) -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        while [ $(get_masters | wc -m) -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -dir=/data -mserver=$(get_masters)"
         ;;
     'filer')
         ARGS="$ARGS -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        while [ $(get_masters | wc -m) -eq 0 ]; do sleep 15; done
+        while [ $(get_masters | wc -w) -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -master=$(get_masters)"
         ;;
     'mount')
         ARGS="$ARGS -dir=/mnt"
-        while [ $(get_local_filer | wc -m)  -eq 0 ]; do sleep 15; done
+        while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -filer=$(get_local_filer)"
         ;;
     's3')
@@ -73,12 +73,12 @@ case "$SERVICE" in
         if [ ! -f /run/secret/seaweedfs_cert ]; then echo "Certificate secret 'seaweedfs_cert' not provided."; exit 1; fi
         ARGS="$ARGS -key.file=/run/secret/key -cert.file=/run/secret/cert"
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
-        while [ $(get_local_filer | wc -m)  -eq 0 ]; do sleep 15; done
+        while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -filer=$(get_local_filer)"
         ;;
     'webdav')
         ARGS="$ARGS -port=80"
-        while [ $(get_local_filer | wc -m)  -eq 0 ]; do sleep 15; done
+        while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -filer=$(get_local_filer)"
         ;;
 esac
