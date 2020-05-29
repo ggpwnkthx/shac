@@ -13,12 +13,15 @@ if [ -z "$DATACENTER" ]; then
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
         jq -r '.Spec.Labels.datacenter'
     )
+    if [ "$DATACENTER" == "null" ]; then unset DATACENTER; fi
 fi
+
 if [ -z "$RACK" ]; then
     RACK=$( \
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
         jq -r '.Spec.Labels.rack' \
     )
+    if [ "$RACK" == "null" ]; then unset RACK; fi
 fi
 get_masters() {
     echo $( \
