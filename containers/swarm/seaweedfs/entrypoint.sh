@@ -42,6 +42,9 @@ get_local_filer() {
         "
     ); do echo "$ip:80"; done
 }
+get_ip() {
+    cat /etc/hosts | grep $(hostname) | awk '{print $1}'
+}
 case "$SERVICE" in
     'master')
         ARGS="$ARGS -port=80 -mdir=/data -volumePreallocate"
@@ -53,7 +56,7 @@ case "$SERVICE" in
     ;;
     'volume')
         while [ $(get_masters | wc -w) -eq 0 ]; do sleep 15; done
-        ARGS="$ARGS -port=80"
+        ARGS="$ARGS -ip=$(get_ip) -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
