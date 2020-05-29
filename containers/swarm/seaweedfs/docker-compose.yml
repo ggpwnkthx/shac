@@ -15,7 +15,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 15s
   volume:
     image: shac/seaweedfs
     deploy:
@@ -30,7 +30,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 15s
   filer:
     image: shac/seaweedfs
     deploy:
@@ -44,4 +44,4 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 15s

@@ -53,18 +53,18 @@ case "$SERVICE" in
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        while [ $(get_masters | wc -m) -lt 1 ]; do get_masters; sleep 15; done
+        while [ $(get_masters | wc -m) -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -dir=/data -mserver=$(get_masters)"
         ;;
     'filer')
         ARGS="$ARGS -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        while [ $(get_masters | wc -m) -lt 1 ]; do get_masters; sleep 15; done
+        while [ $(get_masters | wc -m) -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -master=$(get_masters)"
         ;;
     'mount')
         ARGS="$ARGS -dir=/mnt"
-        while [ $(get_local_filer | wc -w) -lt 1 ]; do sleep 1; done
+        while [ $(get_local_filer | wc -m)  -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -filer=$(get_local_filer)"
         ;;
     's3')
@@ -73,12 +73,12 @@ case "$SERVICE" in
         if [ ! -f /run/secret/seaweedfs_cert ]; then echo "Certificate secret 'seaweedfs_cert' not provided."; exit 1; fi
         ARGS="$ARGS -key.file=/run/secret/key -cert.file=/run/secret/cert"
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
-        while [ $(get_local_filer | wc -w) -lt 1 ]; do sleep 1; done
+        while [ $(get_local_filer | wc -m)  -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -filer=$(get_local_filer)"
         ;;
     'webdav')
         ARGS="$ARGS -port=80"
-        while [ $(get_local_filer | wc -w) -lt 1 ]; do sleep 1; done
+        while [ $(get_local_filer | wc -m)  -eq 0 ]; do sleep 15; done
         ARGS="$ARGS -filer=$(get_local_filer)"
         ;;
 esac
