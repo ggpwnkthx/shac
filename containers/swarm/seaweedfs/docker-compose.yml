@@ -45,10 +45,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-  mount:
-    image: shac/seaweedfs
-    deploy:
-      mode: global
-    volumes:
-      - ${SEAWEEDFS_DIR}/mount:/mnt
-      - /var/run/docker.sock:/var/run/docker.sock
