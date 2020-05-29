@@ -53,13 +53,13 @@ case "$SERVICE" in
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        while [ $(get_masters | wc -m) -lt 1 ]; do sleep 1; done
+        while [ $(get_masters | wc -m) -lt 1 ]; do get_masters; sleep 15; done
         ARGS="$ARGS -dir=/data -mserver=$(get_masters)"
         ;;
     'filer')
         ARGS="$ARGS -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        while [ $(get_masters | wc -m) -lt 1 ]; do sleep 1; done
+        while [ $(get_masters | wc -m) -lt 1 ]; do get_masters; sleep 15; done
         ARGS="$ARGS -master=$(get_masters)"
         ;;
     'mount')
