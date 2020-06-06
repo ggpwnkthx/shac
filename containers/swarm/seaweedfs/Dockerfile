@@ -8,6 +8,16 @@ RUN cd /go/src/github.com/chrislusf/seaweedfs/weed && go install
 FROM shac/base AS final
 COPY --from=builder /go/bin/weed /usr/bin/
 RUN mkdir -p /etc/seaweedfs
+COPY filer.toml /etc/seaweedfs/filer.toml
+
+# volume server grpc port
+EXPOSE 18080
+# filer server grpc port
+EXPOSE 18888
+# master server shared grpc port
+EXPOSE 19333
+# http port
+EXPOSE 80
 
 RUN apk add davfs2
 COPY entrypoint.sh /entrypoint.sh
