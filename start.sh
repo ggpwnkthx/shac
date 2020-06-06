@@ -58,8 +58,24 @@ startup_networking() {
     restart_docker
 }
 
+waitfor_distributed_storage() {
+    NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
+    for c in $(curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | jq --arg NODE $NODE -r '.[] | select (.Labels."com.docker.swarm.node.id"==$NODE) | select (.Labels."com.docker.stack.namespace"=="seaweedfs") | .Id'); do
+        while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json | jq -r '.State.Health.Status')" ]; do sleep 5; done
+    done
+}
+
+mount_distributed_storage() {
+    docker run -d \
+        --name seaweedfs_mount \
+        --net host \
+        -v $DATA_DIR/seaweedfs/mount:/data:share
+        shac/seaweedfs
+}
+
 startup_storage() {
-    echo "do storage things..."
+    waitfor_distributed_storage
+    mount_distributed_storage
 }
 
 bootstrap_local() {

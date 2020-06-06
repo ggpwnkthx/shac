@@ -107,6 +107,7 @@ bootstrap() {
     if [ -z "$DOCKER_SWARM_MANAGER_JOIN" ]; then
         init_docker_swarm
         bootstrap_distributed_storage
+        waitfor_distributed_storage
     else
         join_docker_swarm
     fi

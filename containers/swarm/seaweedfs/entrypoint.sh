@@ -4,10 +4,15 @@ SERVICE=$( \
     jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
     awk -F_ '{print $NF}'
 )
+if [ -z "$SERVICE" ]; then SERVICE='mount'; fi
 NODE=$( \
     curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
     jq -r '.Config.Labels."com.docker.swarm.node.id"'
 )
+if [ -z "$NODE" ]; then
+    # Not in swarm mode, check node itself
+    NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
+fi
 if [ -z "$DATACENTER" ]; then
     DATACENTER=$( \
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
@@ -69,15 +74,15 @@ case "$SERVICE" in
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
         wait_for_master
         ARGS="$ARGS -port=80 -dir=/data -mserver=$(get_masters)"
-        ;;
+    ;;
     'filer')
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         wait_for_master
         ARGS="$ARGS -port=80 -master=$(get_masters)"
-        ;;
+    ;;
     'mount')
         wait_for_filer
-        ARGS="$ARGS -dir=/mnt -filer=$(get_local_filer)"
+        ARGS="$ARGS -dir=/data -filer=$(get_local_filer)"
         ;;
     's3')
         if [ ! -f /run/secret/seaweedfs_key ]; then echo "Certificate key secret 'seaweedfs_key' not provided."; exit 1; fi
@@ -85,11 +90,11 @@ case "$SERVICE" in
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
         wait_for_filer
         ARGS="$ARGS -port=80 -filer=$(get_local_filer) -key.file=/run/secret/key -cert.file=/run/secret/cert"
-        ;;
+    ;;
     'webdav')
         wait_for_filer
         ARGS="$ARGS -port=80 -filer=$(get_local_filer)"
-        ;;
+    ;;
 esac
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS
