@@ -6,7 +6,7 @@ RUN git clone https://github.com/chrislusf/seaweedfs /go/src/github.com/chrislus
 RUN cd /go/src/github.com/chrislusf/seaweedfs/weed && go install
 
 FROM shac/base AS final
-COPY --from=builder /root/go/bin/weed /usr/bin/
+COPY --from=builder /go/bin/weed /usr/bin/
 RUN mkdir -p /etc/seaweedfs
 COPY --from=builder /go/src/github.com/chrislusf/seaweedfs/docker/filer.toml /etc/seaweedfs/filer.toml
 
