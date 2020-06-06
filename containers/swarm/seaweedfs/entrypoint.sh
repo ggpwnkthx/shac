@@ -4,7 +4,7 @@ SERVICE=$( \
     jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
     awk -F_ '{print $NF}'
 )
-if [ "$SERVICE" == "null" ]; then SERVICE='mount'; fi
+if [ "$SERVICE" = "null" ]; then SERVICE='mount'; fi
 NODE=$( \
     curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
     jq -r '.Config.Labels."com.docker.swarm.node.id"'
@@ -18,7 +18,7 @@ if [ -z "$DATACENTER" ]; then
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
         jq -r '.Spec.Labels.datacenter'
     )
-    if [ "$DATACENTER" == "null" ]; then unset DATACENTER; fi
+    if [ "$DATACENTER" = "null" ]; then unset DATACENTER; fi
 fi
 
 if [ -z "$RACK" ]; then
@@ -26,7 +26,7 @@ if [ -z "$RACK" ]; then
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
         jq -r '.Spec.Labels.rack' \
     )
-    if [ "$RACK" == "null" ]; then unset RACK; fi
+    if [ "$RACK" = "null" ]; then unset RACK; fi
 fi
 get_masters() {
     echo $( \
