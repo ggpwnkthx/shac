@@ -9,7 +9,9 @@ FROM shac/base AS final
 COPY --from=builder /root/go/bin/weed /usr/bin/
 RUN mkdir -p /etc/seaweedfs
 COPY --from=builder /go/src/github.com/chrislusf/seaweedfs/docker/filer.toml /etc/seaweedfs/filer.toml
+
 RUN mkdir -p /data/filerldb2
+VOLUME /data
 
 RUN apk add davfs2
 COPY entrypoint.sh /entrypoint.sh
