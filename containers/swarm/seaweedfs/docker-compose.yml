@@ -37,7 +37,6 @@ services:
       mode: global
     volumes:
       - ${SEAWEEDFS_DIR}/filer:/data
-      - ${SEAWEEDFS_DIR}/config/filer.toml:/etc/seaweedfs/filer.toml
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]

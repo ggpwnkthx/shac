@@ -71,16 +71,25 @@ init_docker_swarm() {
 }
 
 bootstrap_distributed_storage() {
+    DATACENTER=${DATACENTER:="default_dc"}
+    RACK=${RACK:="default_rk"}
+
     mkdir -p $DATA_DIR/seaweedfs/config
     mkdir -p $DATA_DIR/seaweedfs/master
     mkdir -p $DATA_DIR/seaweedfs/volumes
     mkdir -p $DATA_DIR/seaweedfs/filer
     mkdir -p $DATA_DIR/seaweedfs/mount
-    cat << EOF > $DATA_DIR/seaweedfs/config/filer.toml
-[leveldb2]
-enabled = true
-dir = "/data"
-EOF
+
+    docker_node=$(docker node ls | grep "*" | awk '{print $1}')
+    docker_node_datacenter=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.datacenter')
+    docker_node_rack=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.rack')
+    if [ -z "$docker_node_datacenter" ]; then
+        docker node update --label-add datacenter=$DATACENTER $docker_node
+    fi
+    if [ -z "$docker_node_rack" ]; then
+        docker node update --label-add rack=$RACK $docker_node
+    fi
+    
     env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs
 }
 
