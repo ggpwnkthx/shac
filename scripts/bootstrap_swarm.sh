@@ -74,13 +74,10 @@ bootstrap_distributed_storage() {
     DATACENTER=${DATACENTER:="default_dc"}
     RACK=${RACK:="default_rk"}
 
-    mkdir -p $DATA_DIR/seaweedfs/config
     mkdir -p $DATA_DIR/seaweedfs/filer
     mkdir -p $DATA_DIR/seaweedfs/master
     mkdir -p $DATA_DIR/seaweedfs/mount
     mkdir -p $DATA_DIR/seaweedfs/volumes
-
-    chmod 777 $DATA_DIR/seaweedfs/volumes
 
     docker_node=$(docker node ls | grep "*" | awk '{print $1}')
     docker_node_datacenter=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.datacenter')

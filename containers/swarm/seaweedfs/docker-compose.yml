@@ -11,7 +11,7 @@ services:
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -26,7 +26,7 @@ services:
       - ${SEAWEEDFS_DIR}/volumes:/data
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -39,7 +39,7 @@ services:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 15s
       timeout: 5s
       retries: 3
