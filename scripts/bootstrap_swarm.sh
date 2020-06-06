@@ -81,7 +81,7 @@ bootstrap_distributed_storage() {
 enabled = true
 dir = "/data"
 EOF
-    env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs 
+    env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs
 }
 
 # Join an existing docker swarm
