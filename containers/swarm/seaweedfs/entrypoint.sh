@@ -45,6 +45,15 @@ get_local_filer() {
 get_ip() {
     cat /etc/hosts | grep $(hostname) | awk '{print $1}'
 }
+
+wait_for_master() {
+    while [ $(get_masters | wc -w) -eq 0 ]; do sleep 5; done
+}
+wait_for_filer() {
+    while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 5; done
+}
+
+
 case "$SERVICE" in
     'master')
         ARGS="$ARGS -port=80 -mdir=/data -volumePreallocate"
@@ -55,37 +64,31 @@ case "$SERVICE" in
         fi
     ;;
     'volume')
-        while [ $(get_masters | wc -w) -eq 0 ]; do sleep 15; done
-        ARGS="$ARGS -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        ARGS="$ARGS -dir=/data -mserver=$(get_masters)"
+        wait_for_master
+        ARGS="$ARGS -port=80 -dir=/data -mserver=$(get_masters)"
         ;;
     'filer')
-        ARGS="$ARGS -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        while [ $(get_masters | wc -w) -eq 0 ]; do sleep 15; done
-        ARGS="$ARGS -master=$(get_masters)"
+        wait_for_master
+        ARGS="$ARGS -port=80 -master=$(get_masters)"
         ;;
     'mount')
-        ARGS="$ARGS -dir=/mnt"
-        while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 15; done
-        ARGS="$ARGS -filer=$(get_local_filer)"
+        wait_for_filer
+        ARGS="$ARGS -dir=/mnt -filer=$(get_local_filer)"
         ;;
     's3')
-        ARGS="$ARGS -port=80"
         if [ ! -f /run/secret/seaweedfs_key ]; then echo "Certificate key secret 'seaweedfs_key' not provided."; exit 1; fi
         if [ ! -f /run/secret/seaweedfs_cert ]; then echo "Certificate secret 'seaweedfs_cert' not provided."; exit 1; fi
-        ARGS="$ARGS -key.file=/run/secret/key -cert.file=/run/secret/cert"
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
-        while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 15; done
-        ARGS="$ARGS -filer=$(get_local_filer)"
+        wait_for_filer
+        ARGS="$ARGS -port=80 -filer=$(get_local_filer) -key.file=/run/secret/key -cert.file=/run/secret/cert"
         ;;
     'webdav')
-        ARGS="$ARGS -port=80"
-        while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 15; done
-        ARGS="$ARGS -filer=$(get_local_filer)"
+        wait_for_filer
+        ARGS="$ARGS -port=80 -filer=$(get_local_filer)"
         ;;
 esac
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
