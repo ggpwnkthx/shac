@@ -58,7 +58,6 @@ wait_for_filer() {
     while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 5; done
 }
 
-
 case "$SERVICE" in
     'master')
         ARGS="$ARGS -port=80 -mdir=/data -volumePreallocate"
