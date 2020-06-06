@@ -83,13 +83,13 @@ bootstrap_distributed_storage() {
     docker_node=$(docker node ls | grep "*" | awk '{print $1}')
     docker_node_datacenter=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.datacenter')
     docker_node_rack=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.rack')
-    if [ -z "$docker_node_datacenter" ]; then
+    if [ "$docker_node_datacenter" = "null" ]; then
         docker node update --label-add datacenter=$DATACENTER $docker_node
     fi
-    if [ -z "$docker_node_rack" ]; then
+    if [ "$docker_node_rack" = "null" ]; then
         docker node update --label-add rack=$RACK $docker_node
     fi
-    
+
     env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs
 }
 
