@@ -4,7 +4,7 @@ SERVICE=$( \
     jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
     awk -F_ '{print $NF}'
 )
-if [ -z "$SERVICE" ]; then SERVICE='mount'; fi
+if [ "$SERVICE" == "null" ]; then SERVICE='mount'; fi
 NODE=$( \
     curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
     jq -r '.Config.Labels."com.docker.swarm.node.id"'
