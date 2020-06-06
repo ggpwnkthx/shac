@@ -69,7 +69,7 @@ mount_distributed_storage() {
     docker run -d \
         --name seaweedfs_mount \
         --net host \
-        -v $DATA_DIR/seaweedfs/mount:/data:share \
+        -v $DATA_DIR/seaweedfs/mount:/data:shared \
         shac/seaweedfs
 }
 
