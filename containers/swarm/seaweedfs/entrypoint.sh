@@ -55,7 +55,10 @@ wait_for_master() {
     while [ $(get_masters | wc -w) -eq 0 ]; do sleep 5; done
 }
 wait_for_filer() {
-    while [ $(get_local_filer | wc -w)  -eq 0 ]; do sleep 5; done
+    while [ $(get_local_filer | wc -w)  -eq 0 ]; do 
+        echo "Waiting for filer..."
+        sleep 5
+    done
 }
 
 case "$SERVICE" in
