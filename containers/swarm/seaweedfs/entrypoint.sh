@@ -9,7 +9,7 @@ NODE=$( \
     curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
     jq -r '.Config.Labels."com.docker.swarm.node.id"'
 )
-if [ -z "$NODE" ]; then
+if [ "$NODE" = "null" ]; then
     # Not in swarm mode, check node itself
     NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
 fi
@@ -55,6 +55,9 @@ wait_for_master() {
     while [ $(get_masters | wc -w) -eq 0 ]; do sleep 5; done
 }
 wait_for_filer() {
+    echo "SERVICE=$SERVICE"
+    echo "NODE=$NODE"
+    get_local_filer
     while [ $(get_local_filer | wc -w)  -eq 0 ]; do 
         echo "Waiting for filer..."
         sleep 5
