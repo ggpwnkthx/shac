@@ -103,3 +103,6 @@ case "$SERVICE" in
 esac
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS
+if [ "$SERVICE" = "mount" ]; then
+    while [ "$(ls -A /mnt)" ]; do sleep 30; done
+fi
