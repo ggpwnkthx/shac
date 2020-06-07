@@ -1,17 +1,17 @@
 #!/bin/sh
-SERVICE=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
-    awk -F_ '{print $NF}'
-)
-if [ "$SERVICE" = "null" ]; then SERVICE='mount'; fi
-NODE=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.node.id"'
-)
-if [ "$NODE" = "null" ]; then
-    # Not in swarm mode, check node itself
-    NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
+if [ -z "$SERVICE" ]; then
+    SERVICE=$( \
+        curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+        jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
+        awk -F_ '{print $NF}'
+    )
+    if [ "$SERVICE" = "null" ]; then SERVICE='mount'; fi
+fi
+if [ -z "$NODE" ]; then
+    NODE=$( \
+        curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+        jq -r '.Config.Labels."com.docker.swarm.node.id"'
+    )
 fi
 if [ -z "$DATACENTER" ]; then
     DATACENTER=$( \
@@ -20,7 +20,6 @@ if [ -z "$DATACENTER" ]; then
     )
     if [ "$DATACENTER" = "null" ]; then unset DATACENTER; fi
 fi
-
 if [ -z "$RACK" ]; then
     RACK=$( \
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
@@ -50,7 +49,6 @@ get_local_filer() {
 get_ip() {
     cat /etc/hosts | grep $(hostname) | awk '{print $1}'
 }
-
 wait_for_master() {
     while [ $(get_masters | wc -w) -eq 0 ]; do sleep 5; done
 }
@@ -88,7 +86,7 @@ case "$SERVICE" in
     'mount')
         wait_for_filer
         ARGS="$ARGS -dir=/data -filer=$(get_local_filer)"
-        ;;
+    ;;
     's3')
         if [ ! -f /run/secret/seaweedfs_key ]; then echo "Certificate key secret 'seaweedfs_key' not provided."; exit 1; fi
         if [ ! -f /run/secret/seaweedfs_cert ]; then echo "Certificate secret 'seaweedfs_cert' not provided."; exit 1; fi
@@ -103,6 +101,3 @@ case "$SERVICE" in
 esac
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS
-if [ "$SERVICE" = "mount" ]; then
-    while [ "$(ls -A /mnt)" ]; do sleep 30; done
-fi

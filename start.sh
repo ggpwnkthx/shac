@@ -58,10 +58,27 @@ startup_networking() {
     restart_docker
 }
 
-waitfor_distributed_storage() {
+get_local_seaweedfs_container_id() {
     NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
-    for c in $(curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | jq --arg NODE $NODE -r '.[] | select (.Labels."com.docker.swarm.node.id"==$NODE) | select (.Labels."com.docker.stack.namespace"=="seaweedfs") | .Id'); do
-        while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json | jq -r '.State.Health.Status')" ]; do sleep 5; done
+    curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
+    jq --arg NODE $NODE --arg SERVICE "seaweedfs_$1" -r '.[] | select (.Labels."com.docker.swarm.node.id"==$NODE) | select (.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
+}
+
+waitfor_distributed_storage() {
+    # Wait for the master, volume, and filer container to be healthy
+    timeout=60
+    interval=10
+    for c in "$(get_local_seaweedfs_container_id master) $(get_local_seaweedfs_container_id volume) $(get_local_seaweedfs_container_id filer)"; do
+        i=0
+        while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json | jq -r '.State.Health.Status')" ]; do 
+            i=(($i + $interval))
+            if [ $i -gt $timeout ]; then
+                echo "$c was not found to be healthy in $timeout seconds."
+                echo "If the distributed storage system is not healthy, the script cannot continue."
+                exit 1
+            fi
+            sleep $interval
+        done
     done
 }
 
@@ -76,7 +93,6 @@ mount_distributed_storage() {
 
 startup_storage() {
     waitfor_distributed_storage
-    mount_distributed_storage
 }
 
 bootstrap_local() {
