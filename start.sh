@@ -71,7 +71,7 @@ waitfor_distributed_storage() {
     for c in "$(get_local_seaweedfs_container_id master) $(get_local_seaweedfs_container_id volume) $(get_local_seaweedfs_container_id filer)"; do
         i=0
         while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json | jq -r '.State.Health.Status')" ]; do 
-            i=(($i + $interval))
+            i=$(($i + $interval))
             if [ $i -gt $timeout ]; then
                 echo "$c was not found to be healthy in $timeout seconds."
                 echo "If the distributed storage system is not healthy, the script cannot continue."
