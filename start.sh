@@ -34,6 +34,7 @@ startup_orchstration_vlan() {
             -v $DATA_DIR/config:/mnt/config \
             shac/network-manager \
             setup-orch-net $ORCH_VLAN_LINK $ORCH_VLAN_NAME $ORCH_VLAN_ID $CIDR
+        restart_docker
     fi
 }
 
@@ -55,7 +56,6 @@ startup_keepalived() {
 
 startup_networking() {
     startup_orchstration_vlan
-    restart_docker
 }
 
 get_local_seaweedfs_container_id() {
@@ -66,9 +66,12 @@ get_local_seaweedfs_container_id() {
 
 waitfor_distributed_storage() {
     # Wait for the master, volume, and filer container to be healthy
-    timeout=60
+    timeout=120
     interval=10
-    for c in "$(get_local_seaweedfs_container_id master) $(get_local_seaweedfs_container_id volume) $(get_local_seaweedfs_container_id filer)"; do
+    conatiners="$(get_local_seaweedfs_container_id master) 
+$(get_local_seaweedfs_container_id volume)
+$(get_local_seaweedfs_container_id filer)"
+    for c in $containers; do
         i=0
         while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json 2>/dev/null | jq -r '.State.Health.Status')" ]; do 
             i=$(($i + $interval))
