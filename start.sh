@@ -70,7 +70,7 @@ waitfor_distributed_storage() {
     interval=10
     for c in "$(get_local_seaweedfs_container_id master) $(get_local_seaweedfs_container_id volume) $(get_local_seaweedfs_container_id filer)"; do
         i=0
-        while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json | jq -r '.State.Health.Status')" ]; do 
+        while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json 2>/dev/null | jq -r '.State.Health.Status')" ]; do 
             i=$(($i + $interval))
             if [ $i -gt $timeout ]; then
                 echo "$c was not found to be healthy in $timeout seconds."
@@ -84,15 +84,18 @@ waitfor_distributed_storage() {
 
 mount_distributed_storage() {
     docker run -d \
-        --name seaweedfs_mount \
-        --net host \
+        --name="seaweedfs_mount" \
+        --network="seaweedfs_default" \
+        --device /dev/fuse \
+        --cap-add SYS_ADMIN \
         -v $DATA_DIR/seaweedfs/mount:/data:shared \
         -v /var/run/docker.sock:/var/run/docker.sock \
-        shac/seaweedfs 
+        shac/seaweedfs
 }
 
 startup_storage() {
     waitfor_distributed_storage
+    mount_distributed_storage
 }
 
 bootstrap_local() {

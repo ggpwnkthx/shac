@@ -53,13 +53,7 @@ wait_for_master() {
     while [ $(get_masters | wc -w) -eq 0 ]; do sleep 5; done
 }
 wait_for_filer() {
-    echo "SERVICE=$SERVICE"
-    echo "NODE=$NODE"
-    get_local_filer
-    while [ $(get_local_filer | wc -w)  -eq 0 ]; do 
-        echo "Waiting for filer..."
-        sleep 5
-    done
+    while ! ping -c 1 -n -w 1 filer &> /dev/null; do sleep 5; done
 }
 
 case "$SERVICE" in
@@ -85,18 +79,18 @@ case "$SERVICE" in
     ;;
     'mount')
         wait_for_filer
-        ARGS="$ARGS -dir=/data -filer=$(get_local_filer)"
+        ARGS="$ARGS -dir=/data -filer=filer:80"
     ;;
     's3')
         if [ ! -f /run/secret/seaweedfs_key ]; then echo "Certificate key secret 'seaweedfs_key' not provided."; exit 1; fi
         if [ ! -f /run/secret/seaweedfs_cert ]; then echo "Certificate secret 'seaweedfs_cert' not provided."; exit 1; fi
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
         wait_for_filer
-        ARGS="$ARGS -port=80 -filer=$(get_local_filer) -key.file=/run/secret/key -cert.file=/run/secret/cert"
+        ARGS="$ARGS -port=80 -filer=filer:80 -key.file=/run/secret/key -cert.file=/run/secret/cert"
     ;;
     'webdav')
         wait_for_filer
-        ARGS="$ARGS -port=80 -filer=$(get_local_filer)"
+        ARGS="$ARGS -port=80 -filer=filer:80"
     ;;
 esac
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
