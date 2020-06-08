@@ -11,7 +11,7 @@ services:
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      seaweedsfs: {}
+      default: {}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 15s
@@ -28,7 +28,7 @@ services:
       - ${SEAWEEDFS_DIR}/volumes:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      seaweedsfs: {}
+      default: {}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 15s
@@ -43,7 +43,7 @@ services:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      seaweedsfs: {}
+      default: {}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 15s
@@ -58,8 +58,8 @@ services:
       - ${SEAWEEDFS_DIR}/mount:/data:shared
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      seaweedsfs: {}
+      default: {}
 networks:
-  seaweedsfs:
+  default:
     driver: overlay
     attachable: true
