@@ -14,14 +14,14 @@ ID=$( \
     curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
     jq -r '.Id'
 )
+# Discover the local node ID
+NODE_ID=$( \
+    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+    jq -r '.Config.Labels."com.docker.swarm.node.id"'
+)
 
 # Get local docker node hostname by environmental variable or through swarm label
 if [ -z "$NODE" ]; then
-    # Discover the local node ID and the task ID
-    NODE_ID=$( \
-        curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-        jq -r '.Config.Labels."com.docker.swarm.node.id"'
-    )
     NODE=$( \
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID | \
         jq -r '.Description.Hostname' | \
@@ -55,6 +55,12 @@ get_all_service_ids() {
     for id in $ids; do
         if [ "$id" != "$ID" ]; then echo $id; fi
     done
+}
+get_local_service_ids() {
+    ids=$( \
+        curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
+        jq -r --arg NODE_ID $NODE_ID --arg SERVICE $1 '.[] | select(.State!="exited") | select(.Labels."com.docker.swarm.node.id"==$NODE_ID) | select(.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
+    )
 }
 # Get the health status of a container by it's ID
 get_container_status() {
@@ -99,19 +105,19 @@ case "$SERVICE" in
         ARGS="$ARGS -port=80 -master=$(get_masters)"
     ;;
     'mount')
-        wait_for_containers $(get_all_service_ids seaweedfs_master)
-        ARGS="$ARGS -dir=/data -filer="$NODE"_filer:80"
+        wait_for_containers $(get_local_service_ids seaweedfs_filer)
+        ARGS="$ARGS -dir=/data -filer=seaweedfs_filer.$NODE:80"
     ;;
     's3')
         if [ ! -f /run/secret/seaweedfs_key ]; then echo "Certificate key secret 'seaweedfs_key' not provided."; exit 1; fi
         if [ ! -f /run/secret/seaweedfs_cert ]; then echo "Certificate secret 'seaweedfs_cert' not provided."; exit 1; fi
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
-        wait_for_containers "$NODE"_filer
-        ARGS="$ARGS -port=80 -filer="$NODE"_filer:80 -key.file=/run/secret/key -cert.file=/run/secret/cert"
+        wait_for_containers $(get_local_service_ids seaweedfs_filer)
+        ARGS="$ARGS -port=80 -filer=seaweedfs_filer.$NODE:80 -key.file=/run/secret/key -cert.file=/run/secret/cert"
     ;;
     'webdav')
-        wait_for_containers "$NODE"_filer
-        ARGS="$ARGS -port=80 -filer="$NODE"_filer:80"
+        wait_for_containers $(get_local_service_ids seaweedfs_filer)
+        ARGS="$ARGS -port=80 -filer=seaweedfs_filer.$NODE:80"
     ;;
 esac
 hostname
