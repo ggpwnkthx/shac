@@ -77,9 +77,6 @@ services:
       MIN_SEEDS_COUNT: 1
     deploy:
       mode: global
-      placement:
-        constraints:
-          - node.role == manager
 networks:
   default:
     driver: overlay
