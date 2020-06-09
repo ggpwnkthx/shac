@@ -15,14 +15,13 @@ ID=$( \
     jq -r '.Id'
 )
 
-# Discover the local node ID and the task ID
-NODE_ID=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.node.id"'
-)
-
 # Get local docker node hostname by environmental variable or through swarm label
-if [ -z "$NODE" ]; then 
+if [ -z "$NODE" ]; then
+    # Discover the local node ID and the task ID
+    NODE_ID=$( \
+        curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+        jq -r '.Config.Labels."com.docker.swarm.node.id"'
+    )
     NODE=$( \
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID | \
         jq -r '.Description.Hostname' | \
@@ -34,14 +33,14 @@ fi
 # If nothing found, unset the variables so seaweedfs uses internal defaults.
 if [ -z "$DATACENTER" ]; then
     DATACENTER=$( \
-        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID 2>/dev/null | \
+        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
         jq -r '.Spec.Labels.datacenter'
     )
     if [ "$DATACENTER" = "null" ]; then unset DATACENTER; fi
 fi
 if [ -z "$RACK" ]; then
     RACK=$( \
-        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID 2>/dev/null | \
+        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
         jq -r '.Spec.Labels.rack' \
     )
     if [ "$RACK" = "null" ]; then unset RACK; fi
@@ -115,5 +114,6 @@ case "$SERVICE" in
         ARGS="$ARGS -port=80 -filer="$NODE"_filer:80"
     ;;
 esac
+hostname
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS

@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   master:
-    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
+    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: shac/seaweedfs
     deploy:
       mode: global
@@ -21,7 +21,7 @@ services:
       retries: 3
       start_period: 5s
   volume:
-    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
+    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: shac/seaweedfs
     deploy:
       mode: global
@@ -40,10 +40,12 @@ services:
       retries: 3
       start_period: 5s
   filer:
-    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
+    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: shac/seaweedfs
     deploy:
       mode: global
+    environment:
+      - NODE="{{.Node.Hostname}}"
     volumes:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -60,7 +62,7 @@ services:
       retries: 3
       start_period: 5s
   etcd:
-    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
+    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: appcelerator/etcd:latest
     volumes:
       - ${SEAWEEDFS_DIR}/etcd:/data
