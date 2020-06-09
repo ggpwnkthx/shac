@@ -63,10 +63,10 @@ get_container_status() {
     curl --unix-socket /var/run/docker.sock http://x/containers/$1/json 2>/dev/null | jq -r '.State.Health.Status'
 }
 
-get_local_container_id() {
+get_local_container_ids() {
     NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
     curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
-    jq --arg NODE $NODE --arg SERVICE "$1" -r '.[] | select (.Labels."com.docker.swarm.node.id"==$NODE) | select (.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
+    jq --arg NODE $NODE --arg SERVICE $1 -r '.[] | select (.Labels."com.docker.swarm.node.id"==$NODE) | select (.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
 }
 # Wait until all given container IDs are in a healthy state
 wait_for_containers() {
@@ -87,7 +87,7 @@ wait_for_containers() {
 }
 
 startup_storage() {
-    wait_for_containers $(get_local_container_id seaweedfs_master) $(get_local_container_id seaweedfs_volume) $(get_local_container_id seaweedfs_filer)
+    wait_for_containers $(get_local_container_ids seaweedfs_master) $(get_local_container_ids seaweedfs_volume) $(get_local_container_ids seaweedfs_filer)
 }
 
 bootstrap_local() {

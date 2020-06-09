@@ -1,5 +1,18 @@
 version: "3.8"
 services:
+  etcd:
+    image: appcelerator/etcd
+    deploy:
+      mode: global
+    environment:
+      SERVICE_NAME: "etcd"
+      MIN_SEEDS_COUNT: 1
+    volumes:
+      - ${SEAWEEDFS_DIR}/etcd:/data
+    networks:
+      default: 
+        aliases:
+          - "{{.Service.Name}}.{{.Node.Hostname}}"
   master:
     image: shac/seaweedfs
     deploy:
@@ -64,19 +77,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
-  etcd:
-    image: appcelerator/etcd:latest
-    volumes:
-      - ${SEAWEEDFS_DIR}/etcd:/data
-    networks:
-      default: 
-        aliases:
-          - "{{.Service.Name}}.{{.Node.Hostname}}"
-    environment:
-      SERVICE_NAME: "etcd"
-      MIN_SEEDS_COUNT: 1
-    deploy:
-      mode: global
 networks:
   default:
     driver: overlay

@@ -102,6 +102,7 @@ case "$SERVICE" in
     'filer')
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         wait_for_containers $(get_all_service_ids seaweedfs_master)
+        wait_for_containers $(get_all_service_ids seaweedfs_etcd)
         ARGS="$ARGS -port=80 -master=$(get_masters)"
     ;;
     'mount')
