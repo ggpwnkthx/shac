@@ -1,7 +1,6 @@
 version: "3.8"
 services:
   master:
-    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: shac/seaweedfs
     deploy:
       mode: global
@@ -13,7 +12,9 @@ services:
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default: {}
+      default: 
+        aliases:
+          - "{{.Service.Name}}.{{.Node.Hostname}}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 15s
@@ -21,7 +22,6 @@ services:
       retries: 3
       start_period: 5s
   volume:
-    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: shac/seaweedfs
     deploy:
       mode: global
@@ -32,7 +32,9 @@ services:
       - ${SEAWEEDFS_DIR}/volumes:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default: {}
+      default:
+        aliases:
+          - "{{.Service.Name}}.{{.Node.Hostname}}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 15s
@@ -40,7 +42,6 @@ services:
       retries: 3
       start_period: 5s
   filer:
-    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: shac/seaweedfs
     deploy:
       mode: global
@@ -50,7 +51,9 @@ services:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default: {}
+      default: 
+        aliases:
+          - "{{.Service.Name}}.{{.Node.Hostname}}"
     configs:
       - source: filer_toml
         target: /etc/seaweedfs/filer.toml
@@ -62,12 +65,13 @@ services:
       retries: 3
       start_period: 5s
   etcd:
-    hostname: "{{.Service.Name}}.{{.Node.Hostname}}"
     image: appcelerator/etcd:latest
     volumes:
       - ${SEAWEEDFS_DIR}/etcd:/data
     networks:
-      default: {}
+      default: 
+        aliases:
+          - "{{.Service.Name}}.{{.Node.Hostname}}"
     environment:
       SERVICE_NAME: "etcd"
       MIN_SEEDS_COUNT: 1
