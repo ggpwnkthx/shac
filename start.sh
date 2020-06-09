@@ -72,7 +72,7 @@ get_local_container_id() {
 wait_for_containers() {
     timeout=120
     interval=10
-    for id in $@
+    for id in $@; do
         i=0
         while [ "healthy" != "$(get_container_status $id)" ]; do 
             i=$(($i + $interval))

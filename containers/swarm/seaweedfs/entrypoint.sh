@@ -63,7 +63,7 @@ get_container_status() {
 }
 # Wait until all given container IDs are in a healthy state
 wait_for_containers() {
-    for id in $@
+    for id in $@; do
         while [ "healthy" != "$(get_container_status $id)" ]; do sleep 1; done
     done
 }
