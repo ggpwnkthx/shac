@@ -121,6 +121,5 @@ case "$SERVICE" in
         ARGS="$ARGS -port=80 -filer=seaweedfs_filer.$NODE:80"
     ;;
 esac
-hostname
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS

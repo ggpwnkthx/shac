@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   etcd:
-    image: appcelerator/etcd
+    image: shac/seaweedfs
     deploy:
       mode: global
     environment:

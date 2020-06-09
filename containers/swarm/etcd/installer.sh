@@ -22,7 +22,7 @@ case "$arch" in
         ;;
 esac
 
-seaweed_url=$(curl -s -L https://github.com/chrislusf/seaweedfs/releases/latest | egrep -o "chrislusf/seaweedfs/releases/download/.*/linux_$arch.tar.gz")
-wget -P /tmp -O weed.tar.gz https://github.com/$seaweed_url >/dev/null 2>/dev/null
-tar -C /usr/bin/ -xzvf /tmp/weed.gz >/dev/null
-rm /tmp/weed.tar.gz
+etcd_url=$(curl -s -L https://github.com/etcd-io/etcd/releases/latest | egrep -o "etcd-io/etcd/releases/download/.*/.*linux_$arch.tar.gz")
+wget -P /tmp -O etcd.tar.gz https://github.com/$etcd_url >/dev/null 2>/dev/null
+tar -C /bin/ -xzvf /tmp/etcd.gz >/dev/null
+rm /tmp/etcd.tar.gz

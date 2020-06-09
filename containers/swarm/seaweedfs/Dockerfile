@@ -1,6 +1,6 @@
 FROM shac/base
 
-RUN apk add fuse
+RUN apk --no-cache add fuse
 
 COPY installer.sh /installer.sh
 RUN chmod +x /installer.sh
