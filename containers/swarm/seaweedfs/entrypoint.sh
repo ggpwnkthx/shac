@@ -50,7 +50,7 @@ fi
 get_all_service_ids() {
     ips=$( \
         curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
-        jq -r '.[] | select(.State!="exited") | select(.Labels."com.docker.swarm.service.name" | index ("$1")) | .Id'
+        jq -r --arg SERVICE $1 '.[] | select(.State!="exited") | select(.Labels."com.docker.swarm.service.name" | index ("$SERVICE")) | .Id'
     )
     for id in $ids; do
         if [ "$id" != "$ID" ]; then echo $id; fi
