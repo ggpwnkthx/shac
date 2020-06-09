@@ -58,22 +58,23 @@ startup_networking() {
     startup_orchstration_vlan
 }
 
-get_local_seaweedfs_container_id() {
-    NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
-    curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
-    jq --arg NODE $NODE --arg SERVICE "seaweedfs_$1" -r '.[] | select (.Labels."com.docker.swarm.node.id"==$NODE) | select (.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
+# Get the health status of a container by it's ID
+get_container_status() {
+    curl --unix-socket /var/run/docker.sock http://x/containers/$1/json 2>/dev/null | jq -r '.State.Health.Status'
 }
 
-waitfor_distributed_storage() {
-    # Wait for the master, volume, and filer container to be healthy
+get_local_container_id() {
+    NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
+    curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
+    jq --arg NODE $NODE --arg SERVICE "$1" -r '.[] | select (.Labels."com.docker.swarm.node.id"==$NODE) | select (.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
+}
+# Wait until all given container IDs are in a healthy state
+wait_for_containers() {
     timeout=120
     interval=10
-    conatiners="$(get_local_seaweedfs_container_id master) 
-$(get_local_seaweedfs_container_id volume)
-$(get_local_seaweedfs_container_id filer)"
-    for c in $containers; do
+    for id in $@
         i=0
-        while [ "healthy" != "$(curl --unix-socket /var/run/docker.sock http://x/containers/$c/json 2>/dev/null | jq -r '.State.Health.Status')" ]; do 
+        while [ "healthy" != "$(get_container_status $id)" ]; do 
             i=$(($i + $interval))
             if [ $i -gt $timeout ]; then
                 echo "$c was not found to be healthy in $timeout seconds."
@@ -85,20 +86,8 @@ $(get_local_seaweedfs_container_id filer)"
     done
 }
 
-mount_distributed_storage() {
-    docker run -d \
-        --name="seaweedfs_mount" \
-        --network="seaweedfs_default" \
-        --device /dev/fuse \
-        --cap-add SYS_ADMIN \
-        -v $DATA_DIR/seaweedfs/mount:/data:shared \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        shac/seaweedfs
-}
-
 startup_storage() {
-    waitfor_distributed_storage
-    mount_distributed_storage
+    wait_for_containers $(get_local_container_id seaweedfs_master) $(get_local_container_id seaweedfs_volume) $(get_local_container_id seaweedfs_filer)
 }
 
 bootstrap_local() {

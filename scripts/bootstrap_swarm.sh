@@ -77,6 +77,7 @@ bootstrap_distributed_storage() {
     DATACENTER=${DATACENTER:="default_dc"}
     RACK=${RACK:="default_rk"}
 
+    mkdir -p $DATA_DIR/seaweedfs/etcd
     mkdir -p $DATA_DIR/seaweedfs/filer
     mkdir -p $DATA_DIR/seaweedfs/master
     mkdir -p $DATA_DIR/seaweedfs/mount

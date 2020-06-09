@@ -1,3 +1,4 @@
-[leveldb2]
+[etcd]
 enabled = true
-dir = "/data"
+servers = "etcd:2379"
+timeout = "3s"

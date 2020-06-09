@@ -1,10 +1,12 @@
 version: "3.8"
 services:
   master:
+    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
     image: shac/seaweedfs
     deploy:
       mode: global
     environment:
+      - NODE="{{.Node.Hostname}}"
       - MAX_VOLUME_SIZE=128
       - REPLICATION=002
     volumes:
@@ -19,10 +21,12 @@ services:
       retries: 3
       start_period: 5s
   volume:
+    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
     image: shac/seaweedfs
     deploy:
       mode: global
     environment:
+      - NODE="{{.Node.Hostname}}"
       - MAX_VOLUMES=4
     volumes:
       - ${SEAWEEDFS_DIR}/volumes:/data
@@ -36,6 +40,7 @@ services:
       retries: 3
       start_period: 5s
   filer:
+    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
     image: shac/seaweedfs
     deploy:
       mode: global
@@ -44,13 +49,35 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       default: {}
+    configs:
+      - source: filer_toml
+        target: /etc/seaweedfs/filer.toml
+        mode: 0755
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 5s
+  etcd:
+    hostname: "{{.Node.Hostname}}_{{.Service.Name}}"
+    image: appcelerator/etcd:latest
+    volumes:
+      - ${SEAWEEDFS_DIR}/etcd:/data
+    networks:
+      default: {}
+    environment:
+      SERVICE_NAME: "etcd"
+      MIN_SEEDS_COUNT: 1
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
 networks:
   default:
     driver: overlay
     attachable: true
+configs:
+  filer_toml:
+    file: ./filer.toml
