@@ -75,6 +75,7 @@ get_masters() {
     done | \
     xargs | \
     sed -e 's/\s\+/,/g'
+}
 
 case "$SERVICE" in
     'master')
