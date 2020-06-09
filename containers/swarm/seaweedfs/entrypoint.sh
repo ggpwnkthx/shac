@@ -48,7 +48,7 @@ fi
 
 # Discover all the container IDs for a given service name
 get_all_service_ids() {
-    ips=$( \
+    ids=$( \
         curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
         jq -r --arg SERVICE $1 '.[] | select(.State!="exited") | select(.Labels."com.docker.swarm.service.name" | index ("$SERVICE")) | .Id'
     )
