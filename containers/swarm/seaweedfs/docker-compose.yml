@@ -54,6 +54,10 @@ services:
       mode: global
     environment:
       - NODE="{{.Node.Hostname}}"
+    configs:
+      - source: filer_toml
+        target: /etc/seaweedfs/filer.toml
+        mode: 0755
     volumes:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -61,10 +65,11 @@ services:
       default: 
         aliases:
           - "{{.Service.Name}}.{{.Node.Hostname}}"
-    configs:
-      - source: filer_toml
-        target: /etc/seaweedfs/filer.toml
-        mode: 0755
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
+        mode: host
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
