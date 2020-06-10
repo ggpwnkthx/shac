@@ -104,8 +104,9 @@ wait_for_store() {
             echo "TODO..."
         ;;
         etcd)
-            url=$(echo $(cat /etc/seaweedfs/filer.toml | grep '^servers' | awk -F= '{print $2}' | sed 's/"//g'))
-            while [ "$(curl https://$url/health 2>dev/null | jq -r '.health')" != "true" ]; do sleep 1; done
+            url="https://"$(echo $(cat /etc/seaweedfs/filer.toml | grep '^servers' | awk -F= '{print $2}' | sed 's/"//g'))"/health"
+            echo "Waiting for $url..."
+            while [ "$(curl $url 2>dev/null | jq -r '.health')" != "true" ]; do sleep 1; done
         ;;
         tikv)
             echo "TODO..."
