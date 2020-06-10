@@ -1,4 +1,4 @@
 FROM shac/base
-RUN apk add wget
+RUN apk --no-cache add wget
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

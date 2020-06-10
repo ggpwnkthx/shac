@@ -1,3 +1,3 @@
 FROM shac/base
-RUN apk add dnsmasq
+RUN apk --no-cache add dnsmasq
 ENTRYPOINT ["/mnt/entrypoint.sh"]

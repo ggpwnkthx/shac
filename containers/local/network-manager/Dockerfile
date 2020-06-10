@@ -1,9 +1,6 @@
 FROM shac/base
 
-RUN apk add ipcalc
-RUN apk add iproute2
-RUN apk add dhclient
-RUN apk add bind-tools
+RUN apk --no-cache add ipcalc iproute2 dhclient bind-tools
 
 ADD generate-name.sh /usr/bin/generate-name
 RUN chmod +x /usr/bin/generate-name
