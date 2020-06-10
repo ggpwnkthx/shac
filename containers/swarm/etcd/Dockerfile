@@ -7,4 +7,5 @@ RUN chmod +x /installer.sh
 RUN /installer.sh
 
 COPY run.sh /bin/
+RUN chmod +x /bin/run.sh
 ENTRYPOINT ["/sbin/tini", "--", "/bin/run.sh"]
