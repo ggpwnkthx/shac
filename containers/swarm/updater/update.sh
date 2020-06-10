@@ -6,6 +6,7 @@ git reset --hard HEAD
 git clean -f -d
 git pull
 chmod +x start.sh
+chmod +x update.sh
 
 # Rebuild local container images
 for img in $(ls -1 /usr/src/shac/containers/local); do
