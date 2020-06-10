@@ -13,6 +13,12 @@ services:
       default: 
         aliases:
           - "{{.Service.Name}}.{{.Node.Hostname}}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2379/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   master:
     image: shac/seaweedfs
     deploy:
