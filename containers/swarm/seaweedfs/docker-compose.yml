@@ -65,16 +65,22 @@ services:
       default: 
         aliases:
           - "{{.Service.Name}}.{{.Node.Hostname}}"
-    ports:
-      - target: 80
-        published: 8080
-        protocol: tcp
-        mode: host
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
       timeout: 1s
       retries: 30
+  mount:
+    image: shac/seaweedfs
+    deploy:
+      mode: global
+    environment:
+      - NODE="{{.Node.Hostname}}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - type: bind
+        source: ${SEAWEEDFS_DIR}/mount
+        target: /data
 networks:
   default:
     driver: overlay
