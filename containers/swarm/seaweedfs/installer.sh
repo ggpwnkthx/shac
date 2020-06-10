@@ -23,6 +23,6 @@ case "$arch" in
 esac
 
 seaweed_url=$(curl -s -L https://github.com/chrislusf/seaweedfs/releases/latest | egrep -o "chrislusf/seaweedfs/releases/download/.*/linux_$arch.tar.gz")
-wget -P /tmp -O weed.tar.gz https://github.com/$seaweed_url >/dev/null 2>/dev/null
+wget -O /tmp/weed.tar.gz https://github.com/$seaweed_url >/dev/null 2>/dev/null
 tar -C /usr/bin/ -xzvf /tmp/weed.tar.gz >/dev/null
 rm /tmp/weed.tar.gz
