@@ -69,6 +69,7 @@ get_container_status() {
 # Wait until all given container IDs are in a healthy state
 wait_for_containers() {
     for id in $@; do
+        echo "Waiting for $id..." 
         while [ "healthy" != "$(get_container_status $id)" ]; do sleep 1; done
     done
 }
@@ -76,6 +77,7 @@ wait_for_containers() {
 # Wait for the filer's store to be healthy
 wait_for_store() {
     store=$(head -n 1 /etc/seaweedfs/filer.toml | sed 's/[][]//g')
+    echo "Waiting for $store..." 
     case $store in
         memory | leveldb | leveldb2)
             echo "No waiting needed."
