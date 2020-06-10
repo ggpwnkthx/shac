@@ -5,6 +5,6 @@ services:
     deploy:
       mode: global
     volumes:
-      - ${BASEDIR}:/usr/src/shac
+      - ${SRC}:/usr/src/shac
       - /var/run/docker.sock:/var/run/docker.sock
     restart: "no"

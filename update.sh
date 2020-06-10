@@ -2,7 +2,6 @@
 
 # Default variables
 BASEPATH=$( cd ${0%/*} && pwd -P )
-DATA_DIR=${DATA_DIR:="/srv/cluster"}
 
 get_running_updates() {
     docker service ls | \
@@ -13,8 +12,7 @@ get_running_updates() {
 
 update_sequence() {
     docker stack rm seaweedfs
-    echo $BASEPATH
-    env BASEPATH=$BASEPATH docker stack deploy -c $BASEPATH/containers/swarm/updater/docker-compose.yml updater
+    env SRC=$BASEPATH docker stack deploy -c $BASEPATH/containers/swarm/updater/docker-compose.yml updater
     while [ $(get_running_updates) -gt 0 ]; do sleep 1; done
     docker stack rm updater
     $BASEPATH/start.sh
