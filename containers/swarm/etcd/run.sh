@@ -3,6 +3,12 @@ if [[ "${1:0:1}" != '-' && "x$1" != "x/bin/etcd" ]]; then
   exec $@
 fi
 
+case "$(uname -m)" in
+    aarch64_be | aarch64 | armv8b | armv8l)
+        ETCD_UNSUPPORTED_ARCH=arm64
+    ;;
+esac
+
 echo -n "$(date +%F\ %T) I | Running "
 /bin/etcd --version
 
