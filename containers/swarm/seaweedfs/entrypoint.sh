@@ -73,6 +73,44 @@ wait_for_containers() {
     done
 }
 
+# Wait for the filer's store to be healthy
+wait_for_store() {
+    store=$(head -n 1 /etc/seaweedfs/filer.toml | sed 's/[][]//g')
+    case $store in
+        memory | leveldb | leveldb2)
+            echo "No waiting needed."
+        ;;
+        mongodb)
+            echo "TODO..."
+        ;;
+        casandra)
+            echo "TODO..."
+        ;;
+        mysql)
+            echo "TODO..."
+        ;;
+        postgres)
+            echo "TODO..."
+        ;;
+        memsql)
+            echo "TODO..."
+        ;;
+        tidb)
+            echo "TODO..."
+        ;;
+        cockroachdb)
+            echo "TODO..."
+        ;;
+        etcd)
+            url=$(echo $(cat /etc/seaweedfs/filer.toml | grep '^servers' | awk -F= '{print $2}' | sed 's/"//g'))
+            while [ "$(curl https://$url/health 2>dev/null | jq -r '.health')" != "true" ]; do sleep 1; done
+        ;;
+        tikv)
+            echo "TODO..."
+        ;;
+    esac
+}
+
 get_masters() {
     for id in $(get_all_service_ids seaweedfs_master); do
         curl --unix-socket /var/run/docker.sock http://x/containers/$id/json 2>/dev/null | \
@@ -102,7 +140,7 @@ case "$SERVICE" in
     'filer')
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         wait_for_containers $(get_all_service_ids seaweedfs_master)
-        wait_for_containers $(get_all_service_ids seaweedfs_etcd)
+        wait_for_store
         ARGS="$ARGS -port=80 -master=$(get_masters)"
     ;;
     'mount')
