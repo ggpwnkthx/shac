@@ -6,3 +6,6 @@ RUN echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/reposito
     echo "@edgecommunity http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 
 RUN apk --no-cache add curl jq
+
+COPY github-release-installer.sh /usr/bin/github-release-installer
+RUN chmod +x /usr/bin/github-release-installer
