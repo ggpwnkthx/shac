@@ -13,7 +13,9 @@ get_running_updates() {
 
 update_sequence() {
     docker stack rm seaweedfs
-    env BASEPATH=$BASEPATH DATA_DIR=$DATA_DIR docker stack deploy -c $BASEPATH/containers/swarm/updater/docker-compose.yml updater
+    export BASEPATH=$BASEPATH 
+    export DATA_DIR=$DATA_DIR
+    docker stack deploy -c $BASEPATH/containers/swarm/updater/docker-compose.yml updater
     while [ $(get_running_updates) -gt 0 ]; do sleep 1; done
     docker stack rm updater
     $BASEPATH/start.sh

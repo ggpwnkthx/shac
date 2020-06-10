@@ -91,6 +91,7 @@ startup_storage() {
 }
 
 bootstrap_local() {
+    chmod +x $BASEPATH/update.sh
     mkdir -p $DATA_DIR
     touch $DATA_DIR/config
     # Skip bootstrap if it's already been done
