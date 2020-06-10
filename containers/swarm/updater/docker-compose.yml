@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  updater:
+    image: shac/updater
+    deploy:
+      mode: global
+    volumes:
+      - ${BASEDIR}:/usr/src/shac
+      - ${DATA_DIR}:/srv/cluster
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: "no"
