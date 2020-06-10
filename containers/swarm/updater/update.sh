@@ -11,7 +11,7 @@ chmod +x start.sh
 for img in $(ls -1 /usr/src/shac/containers/local); do
     if [ -d /usr/src/shac/containers/local/$img ]; then
         cd /usr/src/shac/containers/local/$img
-        docker build . -t local/$img
+        docker build . -t shac/$img
     fi
 done
 # Rebuild swarm container images
