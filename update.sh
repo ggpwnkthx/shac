@@ -13,9 +13,9 @@ get_running_updates() {
 update_sequence() {
     docker stack rm seaweedfs
     env SRC=$BASEPATH docker stack deploy -c $BASEPATH/containers/swarm/updater/docker-compose.yml updater
-    while [ $(get_running_updates) -gt 0 ]; do sleep 1; done
-    docker stack rm updater
-    $BASEPATH/start.sh
+    #while [ $(get_running_updates) -gt 0 ]; do sleep 1; done
+    #docker stack rm updater
+    #$BASEPATH/start.sh
 }
 
 # Rerun self if not root
