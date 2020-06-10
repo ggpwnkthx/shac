@@ -26,9 +26,9 @@ services:
           - "{{.Service.Name}}.{{.Node.Hostname}}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
+      interval: 1s
+      timeout: 1s
+      retries: 30
   volume:
     image: shac/seaweedfs
     deploy:
@@ -45,9 +45,9 @@ services:
           - "{{.Service.Name}}.{{.Node.Hostname}}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
+      interval: 1s
+      timeout: 1s
+      retries: 30
   filer:
     image: shac/seaweedfs
     deploy:
@@ -67,9 +67,9 @@ services:
         mode: 0755
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
+      interval: 1s
+      timeout: 1s
+      retries: 30
 networks:
   default:
     driver: overlay
