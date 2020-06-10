@@ -4,9 +4,10 @@ if [[ "${1:0:1}" != '-' && "x$1" != "x/bin/etcd" ]]; then
 fi
 
 case "$(uname -m)" in
-    aarch64_be | aarch64 | armv8b | armv8l)
-        ETCD_UNSUPPORTED_ARCH=arm64
-    ;;
+  aarch64_be | aarch64 | armv8b | armv8l)
+    echo "Setting ETCD_UNSUPPORTED_ARCH=arm64"
+    ETCD_UNSUPPORTED_ARCH=arm64
+  ;;
 esac
 
 echo -n "$(date +%F\ %T) I | Running "
