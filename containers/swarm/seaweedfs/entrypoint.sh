@@ -104,7 +104,7 @@ wait_for_store() {
             echo "TODO..."
         ;;
         etcd)
-            url="https://"$(echo $(cat /etc/seaweedfs/filer.toml | grep '^servers' | awk -F= '{print $2}' | sed 's/"//g'))"/health"
+            url="http://"$(echo $(cat /etc/seaweedfs/filer.toml | grep '^servers' | awk -F= '{print $2}' | sed 's/"//g'))"/health"
             echo "Waiting for $url..."
             while [ "$(curl $url 2>dev/null | jq -r '.health')" != "true" ]; do sleep 1; done
         ;;
