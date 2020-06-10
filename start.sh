@@ -86,8 +86,18 @@ wait_for_containers() {
     done
 }
 
+get_gwbridge_ip() {
+    curl --unix-socket /var/run/docker.sock http://x/networks/docker_gwbridge 2>/dev/null | \
+    jq --arg ID $1 -r '.Containers."\($ID)".IPv4Address' | \
+    awk -F/ '{print $1}'
+}
+mount_distributed_storage() {
+    ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
+}
+
 startup_storage() {
-    wait_for_containers $(get_local_container_ids seaweedfs_master) $(get_local_container_ids seaweedfs_volume) $(get_local_container_ids seaweedfs_filer)
+    wait_for_containers $(get_local_container_ids seaweedfs_filer)
+    mount_distributed_storage
 }
 
 bootstrap_local() {

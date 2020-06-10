@@ -74,6 +74,12 @@ wait_for_containers() {
     done
 }
 
+get_gwbridge_ip() {
+    curl --unix-socket /var/run/docker.sock http://x/networks/docker_gwbridge 2>/dev/null | \
+    jq --arg ID $1 -r '.Containers."\($ID)".IPv4Address' | \
+    awk -F/ '{print $1}'
+}
+
 # Wait for the filer's store to be healthy
 wait_for_store() {
     store=$(head -n 1 /etc/seaweedfs/filer.toml | sed 's/[][]//g')
@@ -125,7 +131,7 @@ get_masters() {
 
 case "$SERVICE" in
     'master')
-        ARGS="$ARGS -port=80 -mdir=/data -volumePreallocate"
+        ARGS="$ARGS -ip=$(get_gwbridge_ip $ID) -port=80 -mdir=/data -volumePreallocate"
         if [ ! -z "$MAX_VOLUME_SIZE" ]; then ARGS="$ARGS -volumeSizeLimitMB=$MAX_VOLUME_SIZE"; fi
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
         if [ $(get_masters | wc -w) -gt 0 ]; then 
@@ -138,13 +144,13 @@ case "$SERVICE" in
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
         wait_for_containers $(get_all_service_ids seaweedfs_master)
-        ARGS="$ARGS -port=80 -dir=/data -mserver=$(get_masters)"
+        ARGS="$ARGS -ip=$(get_gwbridge_ip $ID) -port=80 -dir=/data -mserver=$(get_masters)"
     ;;
     'filer')
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         wait_for_containers $(get_all_service_ids seaweedfs_master)
         wait_for_store
-        ARGS="$ARGS -port=80 -master=$(get_masters)"
+        ARGS="$ARGS -ip=$(get_gwbridge_ip $ID) -port=80 -master=$(get_masters)"
     ;;
     'mount')
         wait_for_containers $(get_local_service_ids seaweedfs_filer)

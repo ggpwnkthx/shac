@@ -8,16 +8,25 @@ if [ -f $DATA_DIR/config ]; then
 fi
 
 update_stacks() {
+    # Update the SeaweedFS stack
     env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs
 }
 
 update_sequence() {
+    # Remove the old updater stack
     docker stack rm updater
+    # Wait for the old updater stack to actuall be removed
     while [ ! -z "$(docker network ls | grep updater_default)" ]; do sleep 1; done
+    # Deploy updater stack
     env SRC=$BASEPATH docker stack deploy -c $BASEPATH/containers/swarm/updater/docker-compose.yml updater
+    # Wait for all the services in the stack to complete and exit
     while [ "$(docker service ls | grep updater_updater | awk '{print $4}')" != "0/0" ]; do sleep 1; done
+    # Update all the stacks
     update_stacks
+    # Rerun startup script
     $BASEPATH/start.sh
+    # Clean up old, untagged, docker images
+    docker rmi $(docker images | grep '^<none>' | awk '{print $3}')
 }
 
 # Rerun self if not root
