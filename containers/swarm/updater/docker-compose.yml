@@ -6,6 +6,5 @@ services:
       mode: global
     volumes:
       - ${BASEDIR}:/usr/src/shac
-      - ${DATA_DIR}:/srv/cluster
       - /var/run/docker.sock:/var/run/docker.sock
     restart: "no"
