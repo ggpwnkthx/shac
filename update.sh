@@ -13,9 +13,9 @@ update_stacks() {
 
 update_sequence() {
     docker stack rm updater
+    while [ ! -z "$(docker network ls | grep updater_default)" ]; do sleep 1; done
     env SRC=$BASEPATH docker stack deploy -c $BASEPATH/containers/swarm/updater/docker-compose.yml updater
     while [ "$(docker service ls | grep updater_updater | awk '{print $4}')" != "0/0" ]; do sleep 1; done
-    docker stack rm updater
     update_stacks
     $BASEPATH/start.sh
 }
