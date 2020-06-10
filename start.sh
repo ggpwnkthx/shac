@@ -77,7 +77,7 @@ wait_for_containers() {
         while [ "healthy" != "$(get_container_status $id)" ]; do 
             i=$(($i + $interval))
             if [ $i -gt $timeout ]; then
-                echo "$c was not found to be healthy in $timeout seconds."
+                echo "$id was not found to be healthy in $timeout seconds."
                 echo "If the distributed storage system is not healthy, the script cannot continue."
                 exit 1
             fi

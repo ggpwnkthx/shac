@@ -6,7 +6,7 @@ fi
 case "$(uname -m)" in
   aarch64_be | aarch64 | armv8b | armv8l)
     echo "Setting ETCD_UNSUPPORTED_ARCH=arm64"
-    ETCD_UNSUPPORTED_ARCH=arm64
+    export ETCD_UNSUPPORTED_ARCH=arm64
   ;;
 esac
 
