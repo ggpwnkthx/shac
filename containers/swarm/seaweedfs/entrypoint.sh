@@ -122,8 +122,7 @@ wait_for_store() {
 
 get_masters() {
     for id in $(get_all_service_ids seaweedfs_master); do
-        curl --unix-socket /var/run/docker.sock http://x/containers/$id/json 2>/dev/null | \
-        jq -r '.NetworkSettings.Networks.seaweedfs_default.IPAddress +":80"'
+        get_gwbridge_ip $id
     done | \
     xargs | \
     sed -e 's/\s\+/,/g'
@@ -154,18 +153,18 @@ case "$SERVICE" in
     ;;
     'mount')
         wait_for_containers $(get_local_service_ids seaweedfs_filer)
-        ARGS="$ARGS -dir=/data -filer=seaweedfs_filer.$NODE:80"
+        ARGS="$ARGS -dir=/data -filer=$(get_gwbridge_ip $(get_local_service_ids seaweedfs_filer)):80"
     ;;
     's3')
         if [ ! -f /run/secret/seaweedfs_key ]; then echo "Certificate key secret 'seaweedfs_key' not provided."; exit 1; fi
         if [ ! -f /run/secret/seaweedfs_cert ]; then echo "Certificate secret 'seaweedfs_cert' not provided."; exit 1; fi
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
         wait_for_containers $(get_local_service_ids seaweedfs_filer)
-        ARGS="$ARGS -port=80 -filer=seaweedfs_filer.$NODE:80 -key.file=/run/secret/key -cert.file=/run/secret/cert"
+        ARGS="$ARGS -port=80 --filer=$(get_gwbridge_ip $(get_local_service_ids seaweedfs_filer)):80 -key.file=/run/secret/key -cert.file=/run/secret/cert"
     ;;
     'webdav')
         wait_for_containers $(get_local_service_ids seaweedfs_filer)
-        ARGS="$ARGS -port=80 -filer=seaweedfs_filer.$NODE:80"
+        ARGS="$ARGS -port=80 -filer=$(get_gwbridge_ip $(get_local_service_ids seaweedfs_filer)):80"
     ;;
 esac
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
