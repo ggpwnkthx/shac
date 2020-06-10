@@ -122,7 +122,7 @@ wait_for_store() {
 
 get_masters() {
     for id in $(get_all_service_ids seaweedfs_master); do
-        get_gwbridge_ip $id
+        echo "$(get_gwbridge_ip $id):80"
     done | \
     xargs | \
     sed -e 's/\s\+/,/g'
