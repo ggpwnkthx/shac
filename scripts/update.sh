@@ -3,8 +3,12 @@
 # Default variables
 BASEPATH=$1
 
+download_binaries() {
+    /usr/bin/github-release-installer chrislusf/seaweedfs /usr/src/shac/bin
+}
+
 git_clean_pull() {
-    cd $BASEPATH
+    cd $1
     git reset --hard HEAD
     git clean -f -d
     git pull
@@ -24,3 +28,7 @@ build_docker_images() {
         fi
     done
 }
+
+git_clean_pull $BASEPATH
+build_docker_images
+download_binaries

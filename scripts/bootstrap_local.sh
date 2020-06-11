@@ -2,8 +2,9 @@
 
 # Default variables
 BASEPATH=$1
-CIDR=$2
-DOMAIN=$3
+DATA_DIR=$2
+CIDR=$3
+DOMAIN=$4
 
 # Dynamic Variables
 DOCKER_LOCAL_BRIDGE_CIDR() {
@@ -30,9 +31,12 @@ shift_ip() {
 generate_name() { 
     docker run -i --rm shac/network-manager generate-name $@ 
 }
+github_release_installer() {
+    docker run -i --rm -v $BASEPATH:/usr/src/shac shac/base /usr/bin/github-release-installer $@
+}
 
 update_hostname() {
-    echo $1.$DOMAIN > /etc/hostname
+    echo $1 > /etc/hostname
     hostname $(cat /etc/hostname)
     sed -i "/^127.0.1.1/c\127.0.1.1 $(hostname -f) $(hostname -s)" /etc/hosts
 }
@@ -71,22 +75,26 @@ bootstrap_network() {
 }
 
 download_binaries() {
-    mkdir -p $BASEPATH/bin
-    docker run -it --rm \
-        -v $BASEPATH:/usr/src/shac \
-        shac/base \
-        /usr/bin/github-release-installer chrislusf/seaweedfs /usr/src/shac/bin
+    if [ ! -d $BASEPATH/bin ]; then
+        mkdir -p $BASEPATH/bin
+        github_release_installer chrislusf/seaweedfs /usr/src/shac/bin
+    fi
+    if [ -f $BASEPATH/bin/weed ]; then mv $BASEPATH/bin/weed $DATA_DIR/seaweedfs/weed; fi
 }
 
 # Build all the docker images
 build_docker_images() {
     cd $BASEPATH/docker/build/base
-    docker build . -t shac/base
+    if [ -z "$(docker images | grep ^shac/base)" ]; then
+        docker build . -t shac/base
+    fi
     for img in $(ls -1 $BASEPATH/docker/build); do
         if [ "$img" != "base" ]; then
             if [ -d $BASEPATH/docker/build/$img ]; then
                 cd $BASEPATH/docker/build/$img
-                docker build . -t shac/$img
+                if [ -z "$(docker images | grep ^shac/$img)" ]; then
+                    docker build . -t shac/$img
+                fi
             fi
         fi
     done

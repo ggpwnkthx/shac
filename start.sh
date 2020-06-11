@@ -111,29 +111,23 @@ bootstrap_local() {
     chmod +x $BASEPATH/scripts/*
     mkdir -p $DATA_DIR
     touch $DATA_DIR/config
-    # Skip bootstrap if it's already been done
-    if [ -z "$BOOTSTRAP_LOCAL" ]; then 
-        chmod +x $BASEPATH/scripts/bootstrap_local.sh
-        $BASEPATH/scripts/bootstrap_local.sh \
-            $BASEPATH \
-            $CIDR \
-            $DOMAIN
-        config_set BOOTSTRAP_LOCAL 1
+    chmod +x $BASEPATH/scripts/bootstrap_local.sh
+    $BASEPATH/scripts/bootstrap_local.sh \
+        $BASEPATH \
+        $DATA_DIR \
+        $CIDR \
+        $DOMAIN
     fi
 }
 bootstrap_swarm() {
-    if [ -z "$BOOTSTRAP_SWARM" ]; then 
-        chmod +x $BASEPATH/scripts/bootstrap_swarm.sh
-        $BASEPATH/scripts/bootstrap_swarm.sh \
-            $BASEPATH \
-            $DATA_DIR \
-            $ORCH_VLAN_LINK \
-            $ORCH_VLAN_ID \
-            $ORCH_VLAN_NAME \
-            $CIDR \
-            $DOMAIN
-        config_set BOOTSTRAP_SWARM 1
-    fi
+    $BASEPATH/scripts/bootstrap_swarm.sh \
+        $BASEPATH \
+        $DATA_DIR \
+        $ORCH_VLAN_LINK \
+        $ORCH_VLAN_ID \
+        $ORCH_VLAN_NAME \
+        $CIDR \
+        $DOMAIN
 }
 
 clean_up() {
