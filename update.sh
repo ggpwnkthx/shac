@@ -7,9 +7,14 @@ if [ -f $DATA_DIR/config ]; then
     . $DATA_DIR/config
 fi
 
-update_stacks() {
+restart_services() {
     # Update the SeaweedFS stack
-    env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
+    env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy --prune -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
+    docker service update --force --update-parallelism 1 seaweedfs_master
+    docker service update --force --update-parallelism 1 seaweedfs_volume
+    docker service update --force --update-parallelism 1 seaweedfs_etcd
+    docker service update --force --update-parallelism 1 seaweedfs_filer
+    umount $DATA_DIR/seaweedfs/mount
 }
 
 update_sequence() {
@@ -22,7 +27,7 @@ update_sequence() {
     # Wait for all the services in the stack to complete and exit
     while [ "$(docker service ls | grep updater_updater | awk '{print $4}')" != "0/0" ]; do sleep 1; done
     # Update all the stacks
-    update_stacks
+    restart_services
     # Rerun startup script
     $BASEPATH/start.sh
 }

@@ -18,6 +18,7 @@ services:
       - MAX_VOLUME_SIZE=128
       - REPLICATION=002
     volumes:
+      - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -37,6 +38,7 @@ services:
       - NODE="{{.Node.Hostname}}"
       - MAX_VOLUMES=4
     volumes:
+      - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/volumes:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -59,6 +61,7 @@ services:
         target: /etc/seaweedfs/filer.toml
         mode: 0755
     volumes:
+      - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       default: 
@@ -69,14 +72,6 @@ services:
       interval: 1s
       timeout: 1s
       retries: 30
-  s3:
-    image: shac/seaweedfs:latest
-    deploy:
-      mode: global
-    environment:
-      - NODE="{{.Node.Hostname}}"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
 networks:
   default:
     driver: overlay

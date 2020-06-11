@@ -70,6 +70,14 @@ bootstrap_network() {
     enable_ipvs
 }
 
+download_binaries() {
+    mkdir -p $BASEPATH/bin
+    docker run -it --rm \
+        -v $BASEPATH:/usr/src/shac \
+        shac/base \
+        /usr/bin/github-release-installer chrislusf/seaweedfs /usr/src/shac/bin
+}
+
 # Build all the docker images
 build_docker_images() {
     cd $BASEPATH/docker/build/base
@@ -87,6 +95,7 @@ build_docker_images() {
 bootstrap() {
     # Get the local host configured
     build_docker_images
+    download_binaries
     bootstrap_network
 }
 

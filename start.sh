@@ -72,7 +72,6 @@ startup_networking() {
 get_container_status() {
     curl --unix-socket /var/run/docker.sock http://x/containers/$1/json 2>/dev/null | jq -r '.State.Health.Status'
 }
-
 get_local_container_ids() {
     NODE=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
     curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
@@ -95,7 +94,6 @@ wait_for_containers() {
         done
     done
 }
-
 get_gwbridge_ip() {
     curl --unix-socket /var/run/docker.sock http://x/networks/docker_gwbridge 2>/dev/null | \
     jq --arg ID $1 -r '.Containers."\($ID)".IPv4Address' | \
@@ -103,6 +101,7 @@ get_gwbridge_ip() {
 }
 mount_distributed_storage() {
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
+    nohup $DATA_DIR/seaweedfs/weed mount -dir=$DATA_DIR/seaweedfs/mount -filer=$ip:80 -outsideContainerClusterMode &
 }
 
 startup_storage() {
