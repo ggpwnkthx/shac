@@ -34,6 +34,10 @@ check_prerequisites() {
     fi
 }
 
+jq() { 
+    docker run -i --rm shac/base jq $@ 
+}
+
 # Use the network-manager image to configure the host's network interfaces
 startup_orchstration_vlan() {
     # Skip config if our expected IP address is already reachable
@@ -103,7 +107,8 @@ mount_distributed_storage() {
     umount $DATA_DIR/seaweedfs/mount
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
-    nohup $DATA_DIR/seaweedfs/weed mount -dir=$DATA_DIR/seaweedfs/mount -filer=$ip:80 -outsideContainerClusterMode &
+    $DATA_DIR/seaweedfs/weed mount -dir=$DATA_DIR/seaweedfs/mount -filer=$ip:80 -outsideContainerClusterMode &>$DATA_DIR/seaweedfs/mount.log &
+    disown
 }
 
 bootstrap_local() {
