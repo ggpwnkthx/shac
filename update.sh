@@ -7,7 +7,6 @@ if [ -f $DATA_DIR/config ]; then
     . $DATA_DIR/config
 fi
 
-
 update_sequence() {
     # Remove the old updater stack
     docker stack rm updater
