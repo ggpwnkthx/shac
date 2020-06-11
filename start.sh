@@ -24,6 +24,16 @@ config_set() {
     grep -q '^$1' $DATA_DIR/config && sed -i "s/^$1.*/$1=$2/" $DATA_DIR/config || echo "$1=$2" >> $DATA_DIR/config
 }
 
+command_exists() {
+	command -v "$@" > /dev/null 2>&1
+}
+check_prerequisites() {
+    if ! command_exists docker; then
+        echo "Docker doesn't seem to be installed. Cannot continue without it."
+        exit 1
+    fi
+}
+
 # Use the network-manager image to configure the host's network interfaces
 startup_orchstration_vlan() {
     # Skip config if our expected IP address is already reachable
@@ -137,6 +147,7 @@ clean_up() {
 }
 
 startup_sequence() {
+    check_prerequisites
     bootstrap_local
     startup_networking
     bootstrap_swarm

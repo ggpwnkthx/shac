@@ -83,4 +83,4 @@ networks:
     attachable: true
 configs:
   filer_toml:
-    file: ./filer.toml
+    file: ../build/seaweedfs/filer.toml
