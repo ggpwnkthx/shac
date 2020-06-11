@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   etcd:
-    image: shac/etcd
+    image: shac/etcd:latest
     deploy:
       mode: global
     environment:
@@ -10,7 +10,7 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/etcd:/data
   master:
-    image: shac/seaweedfs
+    image: shac/seaweedfs:latest
     deploy:
       mode: global
     environment:
@@ -30,7 +30,7 @@ services:
       timeout: 1s
       retries: 30
   volume:
-    image: shac/seaweedfs
+    image: shac/seaweedfs:latest
     deploy:
       mode: global
     environment:
@@ -49,7 +49,7 @@ services:
       timeout: 1s
       retries: 30
   filer:
-    image: shac/seaweedfs
+    image: shac/seaweedfs:latest
     deploy:
       mode: global
     environment:
@@ -70,7 +70,7 @@ services:
       timeout: 1s
       retries: 30
   s3:
-    image: shac/seaweedfs
+    image: shac/seaweedfs:latest
     deploy:
       mode: global
     environment:
