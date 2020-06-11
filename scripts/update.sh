@@ -4,6 +4,7 @@
 BASEPATH=$1
 
 download_binaries() {
+    mkdir -p $BASEPATH/bin
     /usr/bin/github-release-installer chrislusf/seaweedfs /usr/src/shac/bin
 }
 

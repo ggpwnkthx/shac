@@ -74,9 +74,13 @@ bootstrap_network() {
 download_binaries() {
     if [ ! -d $BASEPATH/bin ]; then
         mkdir -p $BASEPATH/bin
+        echo "Downloading SeaweedFS binary..."
         github_release_installer chrislusf/seaweedfs /usr/src/shac/bin
     fi
-    if [ -f $BASEPATH/bin/weed ]; then mv $BASEPATH/bin/weed $DATA_DIR/seaweedfs/weed; fi
+    if [ -f $BASEPATH/bin/weed ]; then 
+        mv $BASEPATH/bin/weed $DATA_DIR/seaweedfs/weed
+        $DATA_DIR/seaweedfs/weed version
+    fi
 }
 
 # Build all the docker images
