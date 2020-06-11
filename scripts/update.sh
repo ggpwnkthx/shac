@@ -18,12 +18,12 @@ git_clean_pull() {
 # Rebuild all the docker images
 build_docker_images() {
     cd $BASEPATH/docker/build/base
-    docker build . -t shac/base
+    docker build --no-cache . -t shac/base
     for img in $(ls -1 $BASEPATH/docker/build); do
         if [ "$img" != "base" ]; then
             if [ -d $BASEPATH/docker/build/$img ]; then
                 cd $BASEPATH/docker/build/$img
-                docker build . -t shac/$img
+                docker build --no-cache . -t shac/$img
             fi
         fi
     done

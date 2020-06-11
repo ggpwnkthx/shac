@@ -117,7 +117,6 @@ bootstrap_local() {
         $DATA_DIR \
         $CIDR \
         $DOMAIN
-    fi
 }
 bootstrap_swarm() {
     $BASEPATH/scripts/bootstrap_swarm.sh \
