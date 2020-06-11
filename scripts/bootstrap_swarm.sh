@@ -27,9 +27,6 @@ DOCKER_SWARM_BRIDGE_CIDR() {
 }
 
 # Use docker containers for tool abstraction
-jq() { 
-    docker run -i --rm shac/base jq $@ 
-}
 ipcalc() { 
     docker run -i --rm shac/network-manager ipcalc $@ 
 }
