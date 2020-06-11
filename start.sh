@@ -84,7 +84,7 @@ wait_for_containers() {
     for id in $@; do
         i=0
         echo "Waiting for $id..."
-        while [ "$id" = "null"} || [ "healthy" != "$(get_container_status $id)" ]; do 
+        while [ "$id" = "null"] || [ "healthy" != "$(get_container_status $id)" ]; do 
             i=$(($i + $interval))
             if [ $i -gt $timeout ]; then
                 echo "$id was not found to be healthy in $timeout seconds."
