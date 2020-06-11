@@ -9,3 +9,4 @@ services:
     volumes:
       - ${SRC}:/usr/src/shac
       - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: ["/usr/src/shac/scripts/update.sh"]
