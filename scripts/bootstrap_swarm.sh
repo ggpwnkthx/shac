@@ -87,10 +87,10 @@ bootstrap_distributed_storage() {
         env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
     else
         env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy --prune -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
-        services=$(curl --unix-socket /var/run/docker.sock http://x/services 2>/dev/null | jq -r '.[] | select(.Spec.Labels."com.docker.stack.namespace"=="seaweedfs") | .Spec.Name')
-        for s in $services; do
-            docker service update --force --update-parallelism 1 $s
-        done
+        docker service update --force seaweedfs_etcd
+        docker service update --force seaweedfs_master
+        docker service update --force seaweedfs_volume
+        docker service update --force seaweedfs_filer
     fi
 }
 
