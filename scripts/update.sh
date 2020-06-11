@@ -9,7 +9,6 @@ git_clean_pull() {
     git clean -f -d
     git pull
     chmod +x start.sh
-    chmod +x update.sh
 }
 
 # Rebuild all the docker images
