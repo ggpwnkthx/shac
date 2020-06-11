@@ -133,9 +133,15 @@ bootstrap_swarm() {
 
 clean_up() {
     # Remove exited containers
-    docker rm -v $(docker ps -a -q -f status=exited)
+    exited_containers=$(docker ps -a -q -f status=exited)
+    if [ ! -z "$exited_containers" ]; then
+        docker rm -v $exited_containers
+    fi
     # Clean up old, untagged, docker images
-    docker rmi $(docker images | grep '^<none>' | awk '{print $3}')
+    old_containers=$(docker images | grep '^<none>' | awk '{print $3}')
+    if [ ! -z "$old_containers" ]; then
+        docker rmi $old_containers
+    fi
 }
 
 startup_sequence() {
