@@ -129,11 +129,19 @@ bootstrap_swarm() {
     fi
 }
 
+clean_up() {
+    # Remove exited containers
+    docker rm -v $(docker ps -a -q -f status=exited)
+    # Clean up old, untagged, docker images
+    docker rmi $(docker images | grep '^<none>' | awk '{print $3}')
+}
+
 startup_sequence() {
     bootstrap_local
     startup_networking
     bootstrap_swarm
     startup_storage
+    clean_up
 }
 
 # Rerun self if not root

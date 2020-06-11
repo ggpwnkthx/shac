@@ -59,7 +59,6 @@ services:
         target: /etc/seaweedfs/filer.toml
         mode: 0755
     volumes:
-      - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       default: 
@@ -70,7 +69,7 @@ services:
       interval: 1s
       timeout: 1s
       retries: 30
-  mount:
+  s3:
     image: shac/seaweedfs
     deploy:
       mode: global
@@ -78,9 +77,6 @@ services:
       - NODE="{{.Node.Hostname}}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - type: bind
-        source: ${SEAWEEDFS_DIR}/mount
-        target: /data
 networks:
   default:
     driver: overlay

@@ -70,21 +70,23 @@ bootstrap_network() {
     enable_ipvs
 }
 
-# Build all the container images located in the containers/local directory reletive to this script
-build_container_images() {
-    cd $BASEPATH/containers/base
+# Build all the docker images
+build_docker_images() {
+    cd $BASEPATH/docker/build/base
     docker build . -t shac/base
-    for img in $(ls -1 $BASEPATH/containers/local); do
-        if [ -d $BASEPATH/containers/local/$img ]; then
-            cd $BASEPATH/containers/local/$img
-            docker build . -t shac/$img
+    for img in $(ls -1 $BASEPATH/docker/build); do
+        if [ "$img" != "base" ]; then
+            if [ -d $BASEPATH/docker/build/$img ]; then
+                cd $BASEPATH/docker/build/$img
+                docker build . -t shac/$img
+            fi
         fi
     done
 }
 
 bootstrap() {
     # Get the local host configured
-    build_container_images
+    build_docker_images
     bootstrap_network
 }
 

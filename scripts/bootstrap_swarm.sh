@@ -47,16 +47,6 @@ service_discovery() {
     fi
 }
 
-# Build all the container images located in the containers/swarm directory reletive to this script
-build_container_images() {
-    for img in $(ls -1 $BASEPATH/containers/swarm); do
-        if [ -d $BASEPATH/containers/swarm/$img ]; then
-            cd $BASEPATH/containers/swarm/$img
-            docker build . -t shac/$img
-        fi
-    done
-}
-
 # Initialize the docker swarm
 init_docker_swarm() {
     if [ -z "$(docker swarm join-token manager 2>/dev/null)" ]; then
@@ -78,7 +68,6 @@ bootstrap_distributed_storage() {
     RACK=${RACK:="default_rk"}
 
     mkdir -p $DATA_DIR/seaweedfs/etcd
-    mkdir -p $DATA_DIR/seaweedfs/filer
     mkdir -p $DATA_DIR/seaweedfs/master
     mkdir -p $DATA_DIR/seaweedfs/mount
     mkdir -p $DATA_DIR/seaweedfs/volumes
@@ -93,7 +82,7 @@ bootstrap_distributed_storage() {
         docker node update --label-add rack=$RACK $docker_node
     fi
 
-    env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/containers/swarm/seaweedfs/docker-compose.yml seaweedfs
+    env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
 }
 
 # Join an existing docker swarm
@@ -104,7 +93,6 @@ join_docker_swarm() {
 bootstrap() {
     # Use service discovery to bootstrap or join the cluster
     service_discovery
-    build_container_images
     if [ -z "$DOCKER_SWARM_MANAGER_JOIN" ]; then
         init_docker_swarm
         bootstrap_distributed_storage
