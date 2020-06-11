@@ -57,10 +57,8 @@ get_all_service_ids() {
     done
 }
 get_local_service_ids() {
-    ids=$( \
-        curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
-        jq -r --arg NODE_ID $NODE_ID --arg SERVICE $1 '.[] | select(.State!="exited") | select(.Labels."com.docker.swarm.node.id"==$NODE_ID) | select(.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
-    )
+    curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
+    jq -r --arg NODE_ID $NODE_ID --arg SERVICE $1 '.[] | select(.State!="exited") | select(.Labels."com.docker.swarm.node.id"==$NODE_ID) | select(.Labels."com.docker.swarm.service.name"==$SERVICE) | .Id'
 }
 # Get the health status of a container by it's ID
 get_container_status() {
