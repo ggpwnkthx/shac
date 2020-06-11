@@ -100,13 +100,10 @@ get_gwbridge_ip() {
     awk -F/ '{print $1}'
 }
 mount_distributed_storage() {
+    umount $DATA_DIR/seaweedfs/mount
+    wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
     nohup $DATA_DIR/seaweedfs/weed mount -dir=$DATA_DIR/seaweedfs/mount -filer=$ip:80 -outsideContainerClusterMode &
-}
-
-startup_storage() {
-    wait_for_containers $(get_local_container_ids seaweedfs_filer)
-    mount_distributed_storage
 }
 
 bootstrap_local() {
@@ -151,7 +148,7 @@ startup_sequence() {
     bootstrap_local
     startup_networking
     bootstrap_swarm
-    startup_storage
+    mount_distributed_storage
     clean_up
 }
 
