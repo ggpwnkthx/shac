@@ -83,7 +83,8 @@ wait_for_containers() {
     interval=10
     for id in $@; do
         i=0
-        while [ "healthy" != "$(get_container_status $id)" ]; do 
+        echo "Waiting for $id..."
+        while [ "$id" = "null"} || [ "healthy" != "$(get_container_status $id)" ]; do 
             i=$(($i + $interval))
             if [ $i -gt $timeout ]; then
                 echo "$id was not found to be healthy in $timeout seconds."
@@ -103,6 +104,7 @@ mount_distributed_storage() {
     umount $DATA_DIR/seaweedfs/mount
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
+    while [ "$ip" = "null" ]; do ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer)); done
     nohup $DATA_DIR/seaweedfs/weed mount -dir=$DATA_DIR/seaweedfs/mount -filer=$ip:80 -outsideContainerClusterMode &
 }
 
