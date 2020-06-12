@@ -60,37 +60,39 @@ init_docker_swarm() {
     fi
 }
 
-bootstrap_distributed_storage() {
-    DATACENTER=${DATACENTER:="default_dc"}
-    RACK=${RACK:="default_rk"}
+bootstrap_seaweedfs() {
+    if [ -f $BASEPATH/bin/weed ]; then 
+        DATACENTER=${DATACENTER:="default_dc"}
+        RACK=${RACK:="default_rk"}
 
-    mkdir -p $DATA_DIR/seaweedfs/etcd
-    mkdir -p $DATA_DIR/seaweedfs/filer
-    mkdir -p $DATA_DIR/seaweedfs/master
-    mkdir -p $DATA_DIR/seaweedfs/mount
-    mkdir -p $DATA_DIR/seaweedfs/volumes
+        mkdir -p $DATA_DIR/seaweedfs/etcd
+        mkdir -p $DATA_DIR/seaweedfs/filer
+        mkdir -p $DATA_DIR/seaweedfs/master
+        mkdir -p $DATA_DIR/seaweedfs/mount
+        mkdir -p $DATA_DIR/seaweedfs/volumes
+        
+        mv $BASEPATH/bin/weed $DATA_DIR/seaweedfs/weed
 
-    if [ -f $BASEPATH/bin/weed ]; then mv $BASEPATH/bin/weed $DATA_DIR/seaweedfs/weed; fi
-
-    docker_node=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
-    docker_node_datacenter=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.datacenter')
-    docker_node_rack=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.rack')
-    if [ "$docker_node_datacenter" = "null" ]; then
-        docker node update --label-add datacenter=$DATACENTER $docker_node
-    fi
-    if [ "$docker_node_rack" = "null" ]; then
-        docker node update --label-add rack=$RACK $docker_node
-    fi
-    
-    services=$(curl --unix-socket /var/run/docker.sock http://x/services 2>/dev/null | jq -r '.[] | select(.Spec.Labels."com.docker.stack.namespace"=="seaweedfs") | .Spec.Name')
-    if [ -z "$services" ]; then
-        env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
-    else
-        env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy --prune -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
-        docker service update --force seaweedfs_etcd
-        docker service update --force seaweedfs_master
-        docker service update --force seaweedfs_volume
-        docker service update --force seaweedfs_filer
+        docker_node=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
+        docker_node_datacenter=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.datacenter')
+        docker_node_rack=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.rack')
+        if [ "$docker_node_datacenter" = "null" ]; then
+            docker node update --label-add datacenter=$DATACENTER $docker_node
+        fi
+        if [ "$docker_node_rack" = "null" ]; then
+            docker node update --label-add rack=$RACK $docker_node
+        fi
+        
+        services=$(curl --unix-socket /var/run/docker.sock http://x/services 2>/dev/null | jq -r '.[] | select(.Spec.Labels."com.docker.stack.namespace"=="seaweedfs") | .Spec.Name')
+        if [ -z "$services" ]; then
+            env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
+        else
+            env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy --prune -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
+            docker service update --force seaweedfs_etcd
+            docker service update --force seaweedfs_master
+            docker service update --force seaweedfs_volume
+            docker service update --force seaweedfs_filer
+        fi
     fi
 }
 
@@ -110,7 +112,7 @@ bootstrap() {
             join_docker_swarm
         fi
     fi
-    bootstrap_distributed_storage
+    bootstrap_seaweedfs
 }
 
 bootstrap
