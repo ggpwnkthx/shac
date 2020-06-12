@@ -11,9 +11,9 @@ install() {
             sed "s/^ExecStart.*/ExecStart=$(echo $BASEPATH | sed 's/\//\\\//g')\/start.sh/" $BASEPATH/services/systemd > /etc/systemd/system/shac.service
             systemctl daemon-reload
             systemctl enable shac.service
-            systemctl start shac.service
         ;;
     esac
+    $BASEPATH/start.sh
 }
 
 # Rerun self if not root
