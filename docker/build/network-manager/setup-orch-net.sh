@@ -25,6 +25,9 @@ get_lease_option() {
 config_set() {
     grep -q '^$1' $CONFIG_PATH && sed -i 's/^$1.*/$1=$2/' $CONFIG_PATH || echo "$1=$2" >> $CONFIG_PATH
 }
+config_get() {
+    cat $CONFIG_PATH |  grep "^$1=" | awk -F= '{print $2}'
+}
 
 # Add the vlan interface if it doesn't exist
 if [ -z "$(ip link show $VLAN_NAME)" ]; then
@@ -32,7 +35,7 @@ if [ -z "$(ip link show $VLAN_NAME)" ]; then
 fi
 
 # Check for pre-existing configuration
-IP=$(cat $CONFIG_PATH |  grep "^CIDR=" | awk -F= '{print $2}' )
+IP=$(config_get ORCH_VLAN_CIDR)
 if [ -z "$IP" ]; then
     # If no IP is detected, use dhclient to get one
     IP=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
@@ -50,6 +53,6 @@ if [ -z "$IP" ]; then
         config_set DOMAIN $(get_lease_option domain-name)
     fi
     # Save our IP address
-    config_set CIDR $IP
+    config_set ORCH_VLAN_CIDR $IP
 fi
 ip addr add $IP dev $VLAN_NAME

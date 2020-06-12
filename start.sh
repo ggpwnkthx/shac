@@ -142,6 +142,13 @@ clean_up() {
     if [ ! -z "$old_containers" ]; then
         docker rmi $old_containers
     fi
+    
+    config_set BASEPATH $BASEPATH
+    config_set DATA_DIR $DATA_DIR
+    config_set ORCH_VLAN_LINK $ORCH_VLAN_LINK
+    config_set ORCH_VLAN_ID $ORCH_VLAN_ID
+    config_set ORCH_VLAN_NAME $ORCH_VLAN_NAME
+    config_set CIDR $CIDR
 }
 
 startup_sequence() {
