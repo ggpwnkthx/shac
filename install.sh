@@ -7,10 +7,12 @@ install() {
     case "$(cat /proc/1/comm)" in
         systemd)
             sed -i "s/^ExecStart.*/ExecStart=$(echo $BASEPATH | sed 's/\//\\\//g')\/start.sh/" $BASEPATH/services/systemd
-            sed -i "s/^ExecReload.*/ExecReload=$(echo $BASEPATH | sed 's/\//\\\//g')\/start.sh/" $BASEPATH/services/systemd
-            ln -s $BASEPATH/services/systemd /etc/systemd/system/simple-highly-available-cluster.service
+            if [ ! -f /etc/systemd/system/shac ]; then
+                ln -s $BASEPATH/services/systemd /etc/systemd/system/shac.service
+            fi
             systemctl daemon-reload
-            systemctl enable simple-highly-available-cluster.service
+            systemctl enable shac.service
+            systemctl start shac.service
         ;;
     esac
 }

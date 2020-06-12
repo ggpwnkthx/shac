@@ -5,8 +5,8 @@ After=docker.service
 [Service]
 Type=oneshot
 ExecStart=
-ExecReload=
 RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
+
