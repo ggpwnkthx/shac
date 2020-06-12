@@ -4,7 +4,7 @@
 BASEPATH=$( cd ${0%/*} && pwd -P )
 
 install() {
-    case "$(cat /proc/1/comm)" in:
+    case "$(cat /proc/1/comm)" in
         systemd)
             sed -i "s/^ExecStart.*/ExecStart=$BASEPATH/start.sh" $BASEPATH/services/systemd
             sed -i "s/^ExecReload.*/ExecReload=$BASEPATH/start.sh" $BASEPATH/services/systemd
