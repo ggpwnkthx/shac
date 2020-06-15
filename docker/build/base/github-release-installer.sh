@@ -29,3 +29,5 @@ echo "$url"
 wget -O /tmp/$repo.tar.gz https://github.com/${url[0]}
 tar -C $2/ -xzvf /tmp/$repo.tar.gz
 rm /tmp/$repo.tar.gz
+
+echo "Finished installing $1"
