@@ -25,6 +25,7 @@ esac
 repo=$(echo $1 | awk -F/ '{print $2}')
 kname=$(uname -s | tr '[:upper:]' '[:lower:]')
 url=($(curl -s -L https://github.com/$1/releases/latest | egrep -o "$1/releases/download/.*/$kname.*$arch.*.tar.gz"))
+echo "$url"
 wget -O /tmp/$repo.tar.gz https://github.com/${url[0]}
 tar -C $2/ -xzvf /tmp/$repo.tar.gz
 rm /tmp/$repo.tar.gz
