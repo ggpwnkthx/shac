@@ -1,21 +1,21 @@
 # shac
- Simple Highly Available Cluster
+Simple Highly Available Cluster
 
 # Install
 
-## Quick Start
+## Automatic
 
 This will use gitr-done to install prerequisites for most linux distribution and their forks.
 
 ```sh -c "$(url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh; curl -sSL $url || wget $url -O -)" -s https://github.com/ggpwnkthx/shac.git install.sh```
 
-## Manual Install
+## Manual
 
 ### Prerequisites
 
-#### Distribution
+#### Distributions
 
-There are no requirements for a specific linux distribution. This project uses Docker containers in an attempt to be as distirbution agnostic as possible.
+There are no requirements for a specific linux distribution. This project uses Docker containers in an attempt to be as distirbution agnostic as possible. So, as long as docker works, you should be good to go.
 
 #### Software Packages
 
@@ -25,6 +25,7 @@ git
 curl
 jq
 fuse
+docker
 ```
 
 ### Download
