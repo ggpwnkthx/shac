@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 arch=$(uname -m)
 case "$arch" in
     arm) 
@@ -23,8 +23,8 @@ case "$arch" in
 esac
 
 repo=$(echo $1 | awk -F/ '{print $2}')
-
-url=$(curl -s -L https://github.com/$1/releases/latest | egrep -o "$1/releases/download/.*/.*$arch.*.tar.gz")
-wget -O /tmp/$repo.tar.gz https://github.com/$url
+kname=$(uname -s | tr '[:upper:]' '[:lower:]')
+url=($(curl -s -L https://github.com/$1/releases/latest | egrep -o "$1/releases/download/.*/$kname.*$arch.*.tar.gz"))
+wget -O /tmp/$repo.tar.gz https://github.com/${url[0]}
 tar -C $2/ -xzvf /tmp/$repo.tar.gz
 rm /tmp/$repo.tar.gz
