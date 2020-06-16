@@ -17,8 +17,8 @@ restart_docker() {
     if [ -f /etc/init.d/docker ]; then /etc/init.d/docker restart; return; fi
     if [ ! -z "$(which service)" ]; then service docker restart; return; fi
     if [ ! -z "$(which systemctl)" ]; then systemctl restart docker.service; return; fi
-    info=$(curl --unix-socket /var/run/docker.sock http://x/info 2>/dev/null)
-    while [ $? > 0 ]; do info=$(curl --unix-socket /var/run/docker.sock http://x/info 2>/dev/null); done
+    ps=$(docker ps -a)
+    while [ $? > 0 ]; do ps=$(docker ps -a); done
 }
 
 # Add or update config value

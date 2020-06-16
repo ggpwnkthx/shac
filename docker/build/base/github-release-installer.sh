@@ -21,13 +21,9 @@ case "$arch" in
         exit 1
         ;;
 esac
-echo $arch
 repo=$(echo $1 | awk -F/ '{print $2}')
-echo $repo
 kname=$(uname -s | tr '[:upper:]' '[:lower:]')
-echo $kname
 url=($(curl -s -L https://github.com/$1/releases/latest | egrep -o "$1/releases/download/.*/.*$kname.*$arch.*.tar.gz"))
-echo "$url"
 wget -O /tmp/$repo.tar.gz https://github.com/${url[0]}
 tar -C $2/ -xzvf /tmp/$repo.tar.gz
 rm /tmp/$repo.tar.gz
