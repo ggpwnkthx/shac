@@ -35,6 +35,7 @@ github_release_installer() {
 update_hostname() {
     echo $1 > /etc/hostname
     hostname $(cat /etc/hostname)
+    sed -i "/^127.0.0.1/c\127.0.0.1 $(hostname) $(hostname -s)" /etc/hosts
     sed -i "/^127.0.1.1/c\127.0.1.1 $(hostname) $(hostname -s)" /etc/hosts
 }
 

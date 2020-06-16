@@ -1,0 +1,14 @@
+#!/sbin/openrc-run
+
+name="shac"
+command=
+
+depend() {
+    need docker
+}
+
+reload() {
+    ebegin "Reloading configuration"
+    $command
+    eend $?
+}
