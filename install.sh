@@ -25,6 +25,7 @@ install() {
             case $real_init in
                 openrc)
                     sed "s/^command.*/command=$(echo $BASEPATH | sed 's/\//\\\//g')\/start.sh/" $BASEPATH/services/openrc > /etc/init.d/shac
+                    chmod +x /etc/init.d/shac
                     rc-update add shac default
                 ;;
             esac
