@@ -103,6 +103,7 @@ get_gwbridge_ip() {
     awk -F/ '{print $1}'
 }
 mount_distributed_storage() {
+    modprobe fuse
     umount $DATA_DIR/seaweedfs/mount
     while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
