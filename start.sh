@@ -14,10 +14,8 @@ DOMAIN=${DOMAIN:="example.com"}
 
 # Restart docker daemon in the most convenient way available
 wait_for_docker() {
-    echo "Wating for docker to actually be ready..."
     unset $docker_ready
     while [ -z "$docker_ready" ]; do docker_ready=$(docker ps 2>/dev/null | head -n 1 | grep 'CONTAINER ID'); done
-    echo "...done waiting."
 }
 restart_docker() {
     if [ -f /etc/init.d/docker ]; then /etc/init.d/docker restart; return; fi
@@ -110,6 +108,7 @@ get_gwbridge_ip() {
 mount_distributed_storage() {
     modprobe fuse
     umount $DATA_DIR/seaweedfs/mount 2>/dev/null
+    wait_for_docker
     while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
