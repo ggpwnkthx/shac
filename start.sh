@@ -107,7 +107,7 @@ get_gwbridge_ip() {
 }
 mount_distributed_storage() {
     modprobe fuse
-    umount $DATA_DIR/seaweedfs/mount
+    umount $DATA_DIR/seaweedfs/mount 2>/dev/null
     while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
