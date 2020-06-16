@@ -13,12 +13,15 @@ CIDR=${CIDR:="10.2.0.0/20"}
 DOMAIN=${DOMAIN:="example.com"}
 
 # Restart docker daemon in the most convenient way available
+wait_for_docker() {
+    unset $docker_ready
+    while [ -z "$docker_ready" ]; do docker_ready=$(docker ps 2>/dev/null | head -n 1 | grep 'CONTAINER ID'); done
+}
 restart_docker() {
     if [ -f /etc/init.d/docker ]; then /etc/init.d/docker restart; return; fi
     if [ ! -z "$(which service)" ]; then service docker restart; return; fi
     if [ ! -z "$(which systemctl)" ]; then systemctl restart docker.service; return; fi
-    ps=$(docker ps -a)
-    while [ $? > 0 ]; do ps=$(docker ps -a); done
+    wait_for_docker
 }
 
 # Add or update config value
@@ -112,6 +115,7 @@ mount_distributed_storage() {
 }
 
 bootstrap_local() {
+    wait_for_docker
     chmod +x $BASEPATH/update.sh
     chmod +x $BASEPATH/scripts/*
     mkdir -p $DATA_DIR
@@ -124,6 +128,7 @@ bootstrap_local() {
         $DOMAIN
 }
 bootstrap_swarm() {
+    wait_for_docker
     $BASEPATH/scripts/bootstrap_swarm.sh \
         $BASEPATH \
         $DATA_DIR \

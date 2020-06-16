@@ -104,7 +104,6 @@ join_docker_swarm() {
 bootstrap() {
     # Use service discovery to bootstrap or join the cluster
     service_discovery
-    while [ -z "$docker_ready" ]; do docker_ready=$(docker ps | head -n 1 | grep 'CONTAINER ID'); done
     swarm_id=$(curl --unix-socket /var/run/docker.sock http://x/info 2>/dev/null | jq -r '.Swarm.NodeID')
     if [ -z "$swarm_id" ]; then
         if [ -z "$DOCKER_SWARM_MANAGER_JOIN" ]; then
