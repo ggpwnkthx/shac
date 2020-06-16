@@ -30,7 +30,7 @@ config_get() {
 }
 
 # Add the vlan interface if it doesn't exist
-if [ -z "$(ip link show $VLAN_NAME)" ]; then
+if [ -z "$(ip link show $VLAN_NAME 2>/dev/null)" ]; then
     ip link add link $VLAN_LINK name $VLAN_NAME type vlan id $VLAN_ID
 fi
 

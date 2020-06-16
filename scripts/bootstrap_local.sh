@@ -15,7 +15,6 @@ DOCKER_LOCAL_BRIDGE_CIDR() {
         bitmask=$(echo $local_cidr | awk -F/ '{print $2}')
         DOCKER_LOCAL_BRIDGE_CIDR=$docker_ip/$bitmask
     fi
-    echo $DOCKER_LOCAL_BRIDGE_CIDR
 }
 
 # Use docker containers for tool abstraction
