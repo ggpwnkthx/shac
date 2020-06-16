@@ -15,7 +15,9 @@ DOMAIN=${DOMAIN:="example.com"}
 # Restart docker daemon in the most convenient way available
 wait_for_docker() {
     unset $docker_ready
+    unset $api_ready
     while [ -z "$docker_ready" ]; do docker_ready=$(docker ps 2>/dev/null | head -n 1 | grep 'CONTAINER ID'); done
+    while [ -z "$api_ready"]; do api_ready=$(curl --unix-socket /var/run/docker.sock http://x/info 2>/dev/null); done
 }
 restart_docker() {
     if [ -f /etc/init.d/docker ]; then /etc/init.d/docker restart; return; fi
