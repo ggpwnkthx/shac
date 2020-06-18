@@ -20,8 +20,12 @@ sh -c "$(url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
 There are no requirements for a specific linux distribution. This project uses Docker containers in an attempt to be as distirbution agnostic as possible. So, as long as Docker works, you should be good to go. That said, the following distributions and versions have been tested:
 
  - Alpine 3.12, 3.11, 3.10, 3.9
- - CentOS 7, 8
+ - CentOS 8, 7
+ - Debian 10.4<sub>1</sub>, 9.12<sub>1</sub>
  - Ubuntu 20.04 LTS, 18.10, 16.04.6 LTS
+
+ Note: Testing of distirbutions is focused on LTS versions when applicable.
+ <sub>1</sub>: Debian minimal installs may need the ca-certificates and curl|wget package installed prior to using the automatic installer.
 
 #### Hardware Requirements
 
