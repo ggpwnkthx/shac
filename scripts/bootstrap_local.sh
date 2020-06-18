@@ -83,14 +83,14 @@ download_binaries() {
 build_docker_images() {
     cd $BASEPATH/docker/build/base
     if [ -z "$(docker images | grep ^shac/base)" ]; then
-        docker build . -t shac/base
+        docker build . -t shac/base --network host
     fi
     for img in $(ls -1 $BASEPATH/docker/build); do
         if [ "$img" != "base" ]; then
             if [ -d $BASEPATH/docker/build/$img ]; then
                 cd $BASEPATH/docker/build/$img
                 if [ -z "$(docker images | grep ^shac/$img)" ]; then
-                    docker build . -t shac/$img
+                    docker build . -t shac/$img --network host
                 fi
             fi
         fi
