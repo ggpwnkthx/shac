@@ -17,10 +17,16 @@ wait_for_docker() {
     unset docker_ready
     while [ -z "$docker_ready" ]; do docker_ready=$(docker ps 2>/dev/null | head -n 1 | grep 'CONTAINER ID'); done
 }
+start_docker() {
+    if [ -f /etc/init.d/docker ]; then /etc/init.d/docker start; return; fi
+    if [ ! -z "$(which systemctl)" ]; then systemctl start docker.service; return; fi
+    if [ ! -z "$(which service)" ]; then service docker start; return; fi
+    wait_for_docker
+}
 restart_docker() {
     if [ -f /etc/init.d/docker ]; then /etc/init.d/docker restart; return; fi
-    if [ ! -z "$(which service)" ]; then service docker restart; return; fi
     if [ ! -z "$(which systemctl)" ]; then systemctl restart docker.service; return; fi
+    if [ ! -z "$(which service)" ]; then service docker restart; return; fi
     wait_for_docker
 }
 
@@ -37,6 +43,7 @@ check_prerequisites() {
         echo "Docker doesn't seem to be installed. Cannot continue without it."
         exit 1
     fi
+    start_docker
 }
 
 # Use the network-manager image to configure the host's network interfaces
