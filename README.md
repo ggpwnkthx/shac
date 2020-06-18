@@ -20,7 +20,7 @@ sh -c "$(url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
 There are no requirements for a specific linux distribution. This project uses Docker containers in an attempt to be as distirbution agnostic as possible. So, as long as Docker works, you should be good to go. That said, the following distributions and versions have been tested:
 
  - Alpine 3.12, 3.11, 3.10, 3.9
- - CentOS 7
+ - CentOS 7, 8
  - Ubuntu 20.04 LTS, 18.10, 16.04.6 LTS
 
 #### Hardware Requirements
