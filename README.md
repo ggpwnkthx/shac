@@ -5,7 +5,7 @@ Simple Highly Available Cluster
 
 ## Automatic
 
-This will use gitr-done to install prerequisites for most linux distribution and their forks.
+This will use [gitr-done](https://github.com/ggpwnkthx/gitr-done) to install prerequisites for most linux distribution and their forks.
 
 ```
 sh -c "$(url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh; curl -sSL $url || wget $url -O -)" -s https://github.com/ggpwnkthx/shac.git install.sh
@@ -24,9 +24,8 @@ There are no requirements for a specific linux distribution. This project uses D
  - Debian 10.4<sup>1</sup>, 9.12<sup>1</sup>
  - Ubuntu 20.04 LTS, 18.10, 16.04.6 LTS
 
- Note: Testing of distirbutions is focused on LTS versions when applicable.
-
- <sup>1</sup>: Debian minimal installs may need the ca-certificates and curl|wget package installed prior to using the automatic installer.
+Note: Testing of distirbutions is focused on LTS versions when applicable.
+<sup>1</sup>: Debian minimal installs may need the ca-certificates and curl|wget package installed prior to using the automatic installer.
 
 #### Hardware Requirements
 
