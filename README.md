@@ -24,8 +24,11 @@ There are no requirements for a specific linux distribution. This project uses D
  - Debian 10.4<sup>1</sup>, 9.12<sup>1</sup>
  - Ubuntu 20.04 LTS, 18.10, 16.04.6 LTS
 
-Note: Testing of distirbutions is focused on LTS versions when applicable.
-<sup>1</sup>: Debian minimal installs may need the ca-certificates and curl|wget package installed prior to using the automatic installer.
+##### Notes
+
+Testing of distirbutions is focused on LTS versions when applicable.
+
+<sup>1</sup> Debian minimal installs may need the ca-certificates and curl|wget package installed prior to using the automatic installer.
 
 #### Hardware Requirements
 
