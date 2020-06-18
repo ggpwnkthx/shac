@@ -28,7 +28,7 @@ generate_name() {
     docker run -i --rm shac/network-manager generate-name $@ 
 }
 github_release_installer() {
-    docker run -i --rm -v $BASEPATH:/usr/src/shac shac/base /usr/bin/github-release-installer $@
+    docker run -i --rm --network host -v $BASEPATH:/usr/src/shac shac/base /usr/bin/github-release-installer $@
 }
 
 update_hostname() {
