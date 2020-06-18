@@ -19,8 +19,8 @@ sh -c "$(url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
 
 There are no requirements for a specific linux distribution. This project uses Docker containers in an attempt to be as distirbution agnostic as possible. So, as long as Docker works, you should be good to go. That said, the following distributions and versions have been tested:
 
-Alpine 3.12, 3.11, 3.10, 3.9
-Ubuntu 20.04 LTS, 18.10, 16.04.6 LTS
+ - Alpine 3.12, 3.11, 3.10, 3.9
+ - Ubuntu 20.04 LTS, 18.10, 16.04.6 LTS
 
 #### Hardware Requirements
 
@@ -28,8 +28,8 @@ Ubuntu 20.04 LTS, 18.10, 16.04.6 LTS
 
 As mentioned above, as long as Docker works, you should be good. That said, only the following CPU architectures have been tested:
 
-x64
-aarm64
+ - x64
+ - aarm64
 
 ##### Storage
 
@@ -37,8 +37,7 @@ This really depends on your use case, but to get started, each node should have 
 
 ##### RAM
 
-More RAM is generally better, but the orginal testing environment had only 1GB.
-
+More RAM is generally better, but the orginal testing environment had only 1GB. I designed this to be run on IOT devices, specifically the lowest end model PINE Rock64.
 
 #### Software Requirements
 
