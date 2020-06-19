@@ -50,7 +50,6 @@ wait_for_mount() {
     done
 }
 seaweedfs_mount() {
-    umount $1 2>/dev/null
     wait_for_docker
     while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
