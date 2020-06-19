@@ -1,11 +1,12 @@
 #!/bin/sh
 
 # Default variables
+CONFIG_FILE="/etc/shac.conf"
+if [ -f $CONFIG_FILE ]; then
+    . $CONFIG_FILE
+fi
 BASEPATH=$1
 DATA_DIR=$2
-if [ -f $DATA_DIR/config ]; then
-    . $DATA_DIR/config
-fi
 ORCH_VLAN_LINK=${ORCH_VLAN_LINK:=$3}
 ORCH_VLAN_ID=${ORCH_VLAN_ID:=$4}
 ORCH_VLAN_NAME=${ORCH_VLAN_NAME:=$5}
@@ -39,8 +40,10 @@ dig() {
 
 service_discovery() {
     if [ ! -z "$DNS_SERVER_IP" ]; then
-        DOCKER_SWARM_MANAGER_TOKEN=$(dig _manager._swarm.$DOMAIN TXT @$DNS_SERVER_IP)
-        DOCKER_SWARM_PORT=$(dig _swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
+        DOCKER_SWARM_MANAGER_TOKEN=$(dig _manager._docker-swarm.$DOMAIN TXT @$DNS_SERVER_IP)
+        DOCKER_SWARM_PORT=$(dig _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
+        DATACENTER=$(dig _datacenter._local.$DOMAIN TXT @$DNS_SERVER_IP)
+        RACK=$(dig _rack._local.$DOMAIN TXT @$DNS_SERVER_IP)
     fi
 }
 

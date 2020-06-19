@@ -23,10 +23,10 @@ get_lease_option() {
 
 # Add or update config value
 config_set() {
-    grep -q '^$1' $CONFIG_PATH && sed -i 's/^$1.*/$1=$2/' $CONFIG_PATH || echo "$1=$2" >> $CONFIG_PATH
+    grep '^$1' $CONFIG_PATH && sed -i 's/^$1.*/$1=$2/' $CONFIG_PATH || echo "$1=$2" >> $CONFIG_PATH
 }
 config_get() {
-    cat $CONFIG_PATH |  grep "^$1=" | awk -F= '{print $2}'
+    cat $CONFIG_PATH | grep "^$1=" | awk -F= '{print $2}'
 }
 
 # Add the vlan interface if it doesn't exist

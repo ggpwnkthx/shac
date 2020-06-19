@@ -2,15 +2,16 @@
 
 # Default variables
 BASEPATH=$( cd ${0%/*} && pwd -P )
-DATA_DIR=${DATA_DIR:="/srv/cluster"}
-if [ -f $DATA_DIR/config ]; then
-    . $DATA_DIR/config
+CONFIG_FILE="/etc/shac.conf"
+DATA_DIR=${$1:="/srv/cluster"}
+ORCH_VLAN_LINK=${$2:="eth0"}
+ORCH_VLAN_ID=${$3:=2}
+ORCH_VLAN_NAME=${$4:="orchestration"}
+CIDR=${$5:="10.2.0.0/20"}
+DOMAIN=${$6:="example.com"}
+if [ -f $CONFIG_FILE ]; then
+    . $CONFIG_FILE
 fi
-ORCH_VLAN_LINK=${ORCH_VLAN_LINK:="eth0"}
-ORCH_VLAN_ID=${ORCH_VLAN_ID:=2}
-ORCH_VLAN_NAME=${ORCH_VLAN_NAME:="orchestration"}
-CIDR=${CIDR:="10.2.0.0/20"}
-DOMAIN=${DOMAIN:="example.com"}
 
 # Restart docker daemon in the most convenient way available
 wait_for_docker() {
@@ -32,7 +33,7 @@ restart_docker() {
 
 # Add or update config value
 config_set() {
-    grep -q '^$1' $DATA_DIR/config && sed -i "s/^$1.*/$1=$2/" $DATA_DIR/config || echo "$1=$2" >> $DATA_DIR/config
+    grep '^$1' $CONFIG_FILE && sed -i "s/^$1.*/$1=$2/" $CONFIG_FILE || echo "$1=$2" >> $CONFIG_FILE
 }
 
 command_exists() {
@@ -53,7 +54,7 @@ startup_orchstration_vlan() {
         docker run --rm \
             --cap-add NET_ADMIN \
             --net=host \
-            -v $DATA_DIR/config:/mnt/config \
+            -v $CONFIG_FILE:/mnt/config \
             shac/network-manager \
             setup-orch-net $ORCH_VLAN_LINK $ORCH_VLAN_NAME $ORCH_VLAN_ID $CIDR
         restart_docker
@@ -127,7 +128,7 @@ bootstrap_local() {
     chmod +x $BASEPATH/update.sh
     chmod +x $BASEPATH/scripts/*
     mkdir -p $DATA_DIR
-    touch $DATA_DIR/config
+    touch $CONFIG_FILE
     chmod +x $BASEPATH/scripts/bootstrap_local.sh
     $BASEPATH/scripts/bootstrap_local.sh \
         $BASEPATH \

@@ -1,6 +1,6 @@
 [Unit]
 Description=Simple Highly Avaiable Cluster
-After=docker.service
+Require=docker.service
 
 [Service]
 Type=oneshot
