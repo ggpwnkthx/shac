@@ -40,7 +40,7 @@ wait_for_mount() {
     timeout=60
     interval=10
     i=0
-    while ! mountpoint -q -- "$1" ; do
+    while ! mountpoint -q -- "$1"; do
         i=$(($i + $interval))
         if [ $i -gt $timeout ]; then
             echo "Mount point not initialized for some reason."
@@ -55,6 +55,12 @@ seaweedfs_mount() {
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
     nohup $2 mount -dir=$1 -filer=$ip:80 -outsideContainerClusterMode &
     wait_for_mount $1
+    if mountpoint -q -- "$1"; do
+        if ! -f $1/filesystem/ready; then
+            mkdir $1/filesystem
+            touch $1/filesystem/ready
+        fi
+    done
 }
 
 seaweedfs_mount $MOUNT_POINT $WEED_BIN
