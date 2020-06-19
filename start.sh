@@ -127,6 +127,7 @@ startup_dnsmasq() {
     docker run --rm \
         --name=shaq_dnsmasq \
         --net=host \
+        --cap-add=NET_ADMIN \
         -v $DATA_DIR/seaweedfs/mount/services/dnsmasq:/mnt \
         shac/network-manager \
             dnsmasq -d \
