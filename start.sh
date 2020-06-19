@@ -3,12 +3,12 @@
 # Default variables
 BASEPATH=$( cd ${0%/*} && pwd -P )
 CONFIG_FILE="/etc/shac.conf"
-DATA_DIR=${$1:="/srv/cluster"}
-ORCH_VLAN_LINK=${$2:="eth0"}
-ORCH_VLAN_ID=${$3:=2}
-ORCH_VLAN_NAME=${$4:="orchestration"}
-CIDR=${$5:="10.2.0.0/20"}
-DOMAIN=${$6:="example.com"}
+DATA_DIR=${$DATA_DIR:="/srv/cluster"}
+ORCH_VLAN_LINK=${$ORCH_VLAN_LINK:="eth0"}
+ORCH_VLAN_ID=${$ORCH_VLAN_ID:=2}
+ORCH_VLAN_NAME=${$ORCH_VLAN_NAME:="orchestration"}
+CIDR=${$CIDR:="10.2.0.0/20"}
+DOMAIN=${$DOMAIN:="example.com"}
 if [ -f $CONFIG_FILE ]; then
     . $CONFIG_FILE
 fi
