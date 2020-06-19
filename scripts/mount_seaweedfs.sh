@@ -56,9 +56,9 @@ seaweedfs_mount() {
     nohup $2 mount -dir=$1 -filer=$ip:80 -outsideContainerClusterMode &
     wait_for_mount $1
     if mountpoint -q -- "$1"; do
-        if ! -f $1/filesystem/ready; then
-            mkdir $1/filesystem
-            touch $1/filesystem/ready
+        if ! -f $1/fs/ready; then
+            mkdir $1/fs
+            touch $1/fs/ready
         fi
     done
 }

@@ -9,6 +9,8 @@ ORCH_VLAN_ID=${ORCH_VLAN_ID:=2}
 ORCH_VLAN_NAME=${ORCH_VLAN_NAME:="orchestration"}
 CIDR=${CIDR:="10.2.0.0/20"}
 DOMAIN=${DOMAIN:="example.com"}
+DATACENTER=${DATACENTER="default_dc"}
+RACK=${RACK="default_rk"}
 if [ -f $CONFIG_FILE ]; then
     . $CONFIG_FILE
 fi
@@ -29,6 +31,11 @@ restart_docker() {
     if [ ! -z "$(which systemctl)" ]; then systemctl restart docker.service; return; fi
     if [ ! -z "$(which service)" ]; then service docker restart; return; fi
     wait_for_docker
+}
+
+# Use docker containers for tool abstraction
+ipcalc() { 
+    docker run -i --rm shac/network-manager ipcalc $@ 
 }
 
 # Add or update config value
@@ -61,22 +68,6 @@ startup_orchstration_vlan() {
     fi
 }
 
-startup_keepalived() {
-    if ! -f $DATA_DIR/services/keepalived; then
-        mkdir -p $DATA_DIR/services
-        touch $DATA_DIR/services/keepalived
-    fi
-    docker run -d \
-        --name keepalived \
-        --net host \
-        --cap-add NET_ADMIN \
-        --restart always \
-        -v $DATA_DIR/services/keepalived:/mnt/conf:share
-        shac/keepalived \
-            $ORCH_VLAN_NAME \
-            $(date +%s | sha256sum | base64 | head -c 32 ; echo)
-}
-
 startup_networking() {
     startup_orchstration_vlan
 }
@@ -88,6 +79,14 @@ mount_distributed_storage() {
     while ! mountpoint -q -- "$DATA_DIR/seaweedfs/mount"; do
         $BASEPATH/scripts/mount_seaweedfs.sh $DATA_DIR/seaweedfs/mount $DATA_DIR/seaweedfs/weed
     done
+}
+
+bootstrap_dnsmasq() {
+    touch $DATA_DIR/seaweedfs/mount/services/dnsmasq/leases
+}
+
+bootstrap_configs() {
+    bootstrap_dnsmasq
 }
 
 bootstrap_local() {
@@ -113,6 +112,38 @@ bootstrap_swarm() {
         $ORCH_VLAN_NAME \
         $CIDR \
         $DOMAIN
+}
+
+startup_dnsmasq() {
+    ORCH_VLAN_CIDR=$(ip a show $ORCH_VLAN_NAME | grep 'inet ' | awk '{print $2}')
+    ip_min=$(ipcalc $ORCH_VLAN_CIDR | grep HostMin | awk '{print $2}')
+    ip_max=$(ipcalc $ORCH_VLAN_CIDR | grep HostMax | awk '{print $2}')
+    join_token=$(docker swarm join-token manager | grep docker | awk '{print $5}')
+    join_ip=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $1}')
+    join_port=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $2}')
+    docker run --rm \
+        --name=shaq_dnsmasq
+        --net=host \
+        -v $DATA_DIR/seaweedfs/mount/services/dnsmasq:/mnt \
+        shac/network-manager \
+            dnsmasq -d -C /mnt/conf \
+                --bogus-priv \
+                --no-resolv \
+                --no-poll \
+                --no-hosts \
+                --interface=$ORCH_VLAN_NAME \
+                --bind-interfaces \
+                --dhcp-leasefile=/mnt/leases \
+                --dhcp-sequential-ip \
+                --dhcp-range=$ip_min,$ip_max,infinite \
+                --txt-record=_manager._docker-swarm.$DOMAIN,$join_token \
+                --srv-host=_docker-swarm._tcp.$DOMAIN,$join_ip,$join_port \
+                --txt-record=_datacenter._local.$DOMAIN,$DATACENTER \
+                --txt-record=_rack._local.$DOMAIN,$RACK
+}
+
+startup_services() {
+    startup_dnsmasq
 }
 
 clean_up() {
@@ -141,6 +172,8 @@ startup_sequence() {
     startup_networking
     bootstrap_swarm
     mount_distributed_storage
+    bootstrap_configs
+    startup_services
     clean_up
 }
 
