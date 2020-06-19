@@ -124,7 +124,7 @@ startup_dnsmasq() {
     join_token=$(docker swarm join-token manager | grep docker | awk '{print $5}')
     join_ip=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $1}')
     join_port=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $2}')
-    docker run --rm \
+    docker run --rm -d \
         --name=shaq_dnsmasq \
         --net=host \
         --cap-add=NET_ADMIN \
