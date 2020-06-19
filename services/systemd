@@ -6,7 +6,8 @@ Require=docker.service
 Type=oneshot
 ExecStart=
 RemainAfterExit=yes
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
-
