@@ -49,10 +49,10 @@ if [ -z "$IP" ]; then
     if [ -z "$IP" ]; then
         ip_min=$(ipcalc $CIDR | grep HostMin | awk '{print $2}')
         ip_max=$(ipcalc $ip_min/$BITMASK | grep HostMax | awk '{print $2}')
-        octet_1=$(shuf -i $(echo $ip_min | awk -F. '{print $1}')-$(echo $ip_man | awk -F. '{print $1}') -n 1)
-        octet_2=$(shuf -i $(echo $ip_min | awk -F. '{print $2}')-$(echo $ip_man | awk -F. '{print $2}') -n 1)
-        octet_3=$(shuf -i $(echo $ip_min | awk -F. '{print $3}')-$(echo $ip_man | awk -F. '{print $3}') -n 1)
-        octet_4=$(shuf -i $(echo $ip_min | awk -F. '{print $4}')-$(echo $ip_man | awk -F. '{print $4}') -n 1)
+        octet_1=$(shuf -i $(echo $ip_min | awk -F. '{print $1}')-$(echo $ip_max | awk -F. '{print $1}') -n 1)
+        octet_2=$(shuf -i $(echo $ip_min | awk -F. '{print $2}')-$(echo $ip_max | awk -F. '{print $2}') -n 1)
+        octet_3=$(shuf -i $(echo $ip_min | awk -F. '{print $3}')-$(echo $ip_max | awk -F. '{print $3}') -n 1)
+        octet_4=$(shuf -i $(echo $ip_min | awk -F. '{print $4}')-$(echo $ip_max | awk -F. '{print $4}') -n 1)
         IP=$octet_1.$octet_2.$octet_3.$octet_4/$BITMASK
     else
         config_set DNS_SERVER_IP $(get_lease_option dhcp-server-identifier)
