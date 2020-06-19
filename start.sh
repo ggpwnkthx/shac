@@ -82,10 +82,10 @@ startup_networking() {
 }
 
 mount_distributed_storage() {
-    if [ mountpoint -q -- $DATA_DIR/seaweedfs/mount ]; then
+    if mountpoint -q -- $DATA_DIR/seaweedfs/mount; then
         umount $DATA_DIR/seaweedfs/mount
     fi
-    while [ ! mountpoint -q -- $DATA_DIR/seaweedfs/mount ]; do
+    while ! mountpoint -q -- $DATA_DIR/seaweedfs/mount; do
         $BASEPATH/scripts/mount_seaweedfs.sh $DATA_DIR/seaweedfs/mount $DATA_DIR/seaweedfs/weed
     done
 }
