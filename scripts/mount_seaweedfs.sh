@@ -60,7 +60,7 @@ seaweedfs_mount() {
             mkdir $1/fs
             touch $1/fs/ready
         fi
-    done
+    fi
 }
 
 seaweedfs_mount $MOUNT_POINT $WEED_BIN
