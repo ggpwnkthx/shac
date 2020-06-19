@@ -82,7 +82,10 @@ mount_distributed_storage() {
 }
 
 bootstrap_dnsmasq() {
-    touch $DATA_DIR/seaweedfs/mount/services/dnsmasq/leases
+    if [ ! -f $DATA_DIR/seaweedfs/mount/services/dnsmasq/leases ]; then
+        mkdir -p $DATA_DIR/seaweedfs/mount/services/dnsmasq
+        touch $DATA_DIR/seaweedfs/mount/services/dnsmasq/leases
+    fi
 }
 
 bootstrap_configs() {
@@ -126,7 +129,7 @@ startup_dnsmasq() {
         --net=host \
         -v $DATA_DIR/seaweedfs/mount/services/dnsmasq:/mnt \
         shac/network-manager \
-            dnsmasq -d -C /mnt/conf \
+            dnsmasq -d \
                 --bogus-priv \
                 --no-resolv \
                 --no-poll \
