@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 VLAN_LINK=$1
 VLAN_NAME=$2
 VLAN_ID=$3
@@ -47,7 +47,13 @@ if [ -z "$IP" ]; then
     # If we didn't talk to a DHCP server, then we assumer we're the first on the network
     IP=$(ip -j address | jq -r --arg i "$VLAN_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
     if [ -z "$IP" ]; then
-        IP=$(shift-ip $(ipcalc $CIDR | grep HostMin | awk '{print $2}') +1)/$BITMASK
+        ip_min=$(ipcalc $(ipcalc $CIDR | grep HostMin | awk '{print $2}') +1)/$BITMASK | grep HostMin | awk '{print $2}')
+        ip_max=$(ipcalc $(ipcalc $CIDR | grep HostMin | awk '{print $2}') +1)/$BITMASK | grep HostMax | awk '{print $2}')
+        octet_1=$(shuf -i $(echo $ip_min | awk -F. '{print $1}')-$(echo $ip_man | awk -F. '{print $1}') -n 1)
+        octet_2=$(shuf -i $(echo $ip_min | awk -F. '{print $2}')-$(echo $ip_man | awk -F. '{print $2}') -n 1)
+        octet_3=$(shuf -i $(echo $ip_min | awk -F. '{print $3}')-$(echo $ip_man | awk -F. '{print $3}') -n 1)
+        octet_4=$(shuf -i $(echo $ip_min | awk -F. '{print $4}')-$(echo $ip_man | awk -F. '{print $4}') -n 1)
+        IP=$octet_1.$octet_2.$octet_3.$octet_4/$BITMASK
     else
         config_set DNS_SERVER_IP $(get_lease_option dhcp-server-identifier)
         config_set DOMAIN $(get_lease_option domain-name)

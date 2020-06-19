@@ -124,8 +124,7 @@ startup_dnsmasq() {
     join_token=$(docker swarm join-token manager | grep docker | awk '{print $5}')
     join_ip=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $1}')
     join_port=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $2}')
-    docker run --rm -d \
-        --name=shaq_dnsmasq \
+    docker run -d \
         --net=host \
         --cap-add=NET_ADMIN \
         -v $DATA_DIR/seaweedfs/mount/services/dnsmasq:/mnt \
@@ -138,7 +137,6 @@ startup_dnsmasq() {
                 --interface=$ORCH_VLAN_NAME \
                 --bind-interfaces \
                 --dhcp-leasefile=/mnt/leases \
-                --dhcp-sequential-ip \
                 --dhcp-range=$ip_min,$ip_max,infinite \
                 --txt-record=_manager._docker-swarm.$DOMAIN,$join_token \
                 --srv-host=_docker-swarm._tcp.$DOMAIN,$join_ip,$join_port \
