@@ -40,7 +40,7 @@ wait_for_mount() {
     timeout=60
     interval=10
     i=0
-    while [ ! mountpoint -q -- $1 ]; do
+    while ! mountpoint -q -- "$1" ; do
         i=$(($i + $interval))
         if [ $i -gt $timeout ]; then
             echo "Mount point not initialized for some reason."
@@ -50,7 +50,6 @@ wait_for_mount() {
     done
 }
 seaweedfs_mount() {
-    wait_for_docker
     while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
