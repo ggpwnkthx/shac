@@ -114,8 +114,6 @@ bootstrap_swarm() {
     $BASEPATH/scripts/bootstrap_swarm.sh \
         $BASEPATH \
         $DATA_DIR \
-        $ORCH_NET_LINK \
-        $ORCH_VLAN_ID \
         $ORCH_LINK_NAME \
         $CIDR \
         $DOMAIN

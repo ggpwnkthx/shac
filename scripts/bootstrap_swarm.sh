@@ -7,11 +7,9 @@ if [ -f $CONFIG_FILE ]; then
 fi
 BASEPATH=$1
 DATA_DIR=$2
-ORCH_VLAN_LINK=${ORCH_VLAN_LINK:=$3}
-ORCH_VLAN_ID=${ORCH_VLAN_ID:=$4}
-ORCH_VLAN_NAME=${ORCH_VLAN_NAME:=$5}
-CIDR=${CIDR:=$6}
-DOMAIN=${DOMAIN:=$7}
+SWARM_LINK_NAME=${SWARM_LINK_NAME:=$3}
+CIDR=${CIDR:=$4}
+DOMAIN=${DOMAIN:=$5}
 
 # Dynamic Variables
 DOCKER_LOCAL_BRIDGE_CIDR() {
@@ -58,8 +56,8 @@ init_docker_swarm() {
             -o com.docker.network.bridge.enable_ip_masquerade=true \
             docker_gwbridge
         docker swarm init \
-            --listen-addr $(echo $ORCH_VLAN_CIDR | awk -F/ '{print $1}'):2377 \
-            --advertise-addr $(echo $ORCH_VLAN_CIDR | awk -F/ '{print $1}'):2377 >/dev/null
+            --listen-addr $SWARM_LINK_NAME:2377 \
+            --advertise-addr $SWARM_LINK_NAME:2377 >/dev/null
     fi
 }
 
