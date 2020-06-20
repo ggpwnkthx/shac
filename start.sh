@@ -63,7 +63,7 @@ startup_orchstration_vlan() {
             --net=host \
             -v $CONFIG_FILE:/mnt/config \
             shac/network-manager \
-            setup-orch-net \
+            setup-net \
                 $(echo $CIDR | awk -F/ '{print $1}')/$(($(echo $CIDR | awk -F/ '{print $2}') + 2)) \
                 $ORCH_NET_LINK \
                 $ORCH_LINK_NAME \
