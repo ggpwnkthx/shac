@@ -4,10 +4,10 @@
 BASEPATH=$( cd ${0%/*} && pwd -P )
 CONFIG_FILE="/etc/shac.conf"
 DATA_DIR=${DATA_DIR:="/srv/cluster"}
-ORCH_VLAN_LINK=${ORCH_VLAN_LINK:="eth0"}
-ORCH_VLAN_ID=${ORCH_VLAN_ID:=2}
-ORCH_VLAN_NAME=${ORCH_VLAN_NAME:="orchestration"}
 CIDR=${CIDR:="10.2.0.0/20"}
+ORCH_NET_LINK=${ORCH_NET_LINK:="eth0"}
+ORCH_LINK_NAME=${ORCH_LINK_NAME:="orchestration"}
+ORCH_VLAN_ID=${ORCH_VLAN_ID:=2}
 DOMAIN=${DOMAIN:="example.com"}
 DATACENTER=${DATACENTER="default_dc"}
 RACK=${RACK="default_rk"}
@@ -63,7 +63,11 @@ startup_orchstration_vlan() {
             --net=host \
             -v $CONFIG_FILE:/mnt/config \
             shac/network-manager \
-            setup-orch-net $ORCH_VLAN_LINK $ORCH_VLAN_NAME $ORCH_VLAN_ID $CIDR
+            setup-orch-net \
+                $(echo $CIDR | awk -F/ '{print $1}')/$(($(echo $CIDR | awk -F/ '{print $2}') + 2)) \
+                $ORCH_NET_LINK \
+                $ORCH_LINK_NAME \
+                $ORCH_VLAN_ID
         restart_docker
     fi
 }
@@ -110,17 +114,17 @@ bootstrap_swarm() {
     $BASEPATH/scripts/bootstrap_swarm.sh \
         $BASEPATH \
         $DATA_DIR \
-        $ORCH_VLAN_LINK \
+        $ORCH_NET_LINK \
         $ORCH_VLAN_ID \
-        $ORCH_VLAN_NAME \
+        $ORCH_LINK_NAME \
         $CIDR \
         $DOMAIN
 }
 
 startup_dnsmasq() {
-    ORCH_VLAN_CIDR=$(ip a show $ORCH_VLAN_NAME | grep 'inet ' | awk '{print $2}')
-    ip_min=$(ipcalc $ORCH_VLAN_CIDR | grep HostMin | awk '{print $2}')
-    ip_max=$(ipcalc $ORCH_VLAN_CIDR | grep HostMax | awk '{print $2}')
+    ORCH_CIDR=$(ip a show $ORCH_LINK_NAME | grep 'inet ' | awk '{print $2}')
+    ip_min=$(ipcalc $ORCH_CIDR | grep HostMin | awk '{print $2}')
+    ip_max=$(ipcalc $ORCH_CIDR | grep HostMax | awk '{print $2}')
     join_token=$(docker swarm join-token manager | grep docker | awk '{print $5}')
     join_ip=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $1}')
     join_port=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $2}')
@@ -134,7 +138,7 @@ startup_dnsmasq() {
                 --no-resolv \
                 --no-poll \
                 --no-hosts \
-                --interface=$ORCH_VLAN_NAME \
+                --interface=$ORCH_LINK_NAME \
                 --bind-interfaces \
                 --dhcp-leasefile=/mnt/leases \
                 --dhcp-range=$ip_min,$ip_max,infinite \
@@ -162,9 +166,9 @@ clean_up() {
     
     config_set BASEPATH $BASEPATH
     config_set DATA_DIR $DATA_DIR
-    config_set ORCH_VLAN_LINK $ORCH_VLAN_LINK
+    config_set ORCH_NET_LINK $ORCH_NET_LINK
     config_set ORCH_VLAN_ID $ORCH_VLAN_ID
-    config_set ORCH_VLAN_NAME $ORCH_VLAN_NAME
+    config_set ORCH_LINK_NAME $ORCH_LINK_NAME
     config_set CIDR $CIDR
 }
 
