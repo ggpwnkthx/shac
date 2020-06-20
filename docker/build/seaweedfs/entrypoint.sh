@@ -71,6 +71,9 @@ wait_for_containers() {
         while [ "healthy" != "$(get_container_status $id)" ]; do sleep 1; done
     done
 }
+wait_for_masters() {
+    while [ -z "$(get_all_service_ids seaweedfs_master)" ]; do sleep 1; done
+}
 
 get_container_ip() {
     curl --unix-socket /var/run/docker.sock http://x/networks/seaweedfs_default 2>/dev/null | \
@@ -140,11 +143,13 @@ case "$SERVICE" in
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
+        wait_for_masters
         wait_for_containers $(get_all_service_ids seaweedfs_master)
         ARGS="$ARGS -ip=$(get_container_ip $ID) -port=80 -dir=/data -mserver=$(get_masters)"
     ;;
     'filer')
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
+        wait_for_masters
         wait_for_containers $(get_all_service_ids seaweedfs_master)
         wait_for_store
         ARGS="$ARGS -ip=$(get_container_ip $ID) -port=80 -master=$(get_masters)"
