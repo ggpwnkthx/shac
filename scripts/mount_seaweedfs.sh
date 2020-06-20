@@ -50,6 +50,7 @@ wait_for_mount() {
     done
 }
 seaweedfs_mount() {
+    while [ -z "$(lsmod | grep '^fuse ')" ]; do modprobe fuse; done
     while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
