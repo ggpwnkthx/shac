@@ -60,6 +60,19 @@ fi
 # Unset ORCH_VLAN_ID if it's not a number - assume it means untagged.
 if [ -z "$(echo $ORCH_VLAN_ID | grep '^[0-9]*$')" ]; then unset ORCH_VLAN_ID; fi
 
+# Test output variables
+echo "#----------------------------------#"
+echo "CONFIG_FILE=$CONFIG_FILE"
+echo "DATA_DIR=$DATA_DIR"
+echo "CIDR=$CIDR"
+echo "ORCH_NET_LINK=$ORCH_NET_LINK"
+echo "ORCH_LINK_NAME=$ORCH_LINK_NAME"
+echo "ORCH_VLAN_ID=$ORCH_VLAN_ID"
+echo "DOMAIN=$DOMAIN"
+echo "DATACENTER=$DATACENTER"
+echo "RACK=$RACK"
+echo "#----------------------------------#"
+
 # Restart docker daemon in the most convenient way available
 wait_for_docker() {
     unset docker_ready
