@@ -46,7 +46,7 @@ if [ -z "$IP" ]; then
     IP=$(ip -j address | jq -r --arg i "$LINK_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
     if [ -z "$IP" ]; then
         echo "timeout 10;" > /etc/dhcp/dhclient.conf
-        dhclient -1 $LINK_NAME
+        dhclient -n -1 $LINK_NAME
     fi
 
     # If we didn't talk to a DHCP server, then we assumer we're the first on the network
