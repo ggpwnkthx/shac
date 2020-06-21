@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Parse arguments
-POSITIONAL=()
 while [[ $# -gt 0 ]]; do
     case $1 in
         -c|--config)
