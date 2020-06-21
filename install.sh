@@ -37,7 +37,7 @@ install() {
             systemctl enable shac.service
         ;;
     esac
-    $BASEPATH/start.sh
+    $BASEPATH/start.sh $@
 }
 
 # Rerun self if not root
@@ -45,5 +45,5 @@ user="$(id -un 2>/dev/null || true)"
 if [ "$user" != 'root' ]; then
     sudo $0 $@
 else
-    install
+    install $@
 fi
