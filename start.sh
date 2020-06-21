@@ -1,6 +1,7 @@
 #!/bin/sh
 
 echo "$@"
+exit
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
