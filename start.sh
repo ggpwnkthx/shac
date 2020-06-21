@@ -181,6 +181,7 @@ startup_dnsmasq() {
     ORCH_CIDR=$(ip a show $ORCH_LINK_NAME | grep 'inet ' | awk '{print $2}')
     ip_min=$(ipcalc $ORCH_CIDR | grep HostMin | awk '{print $2}')
     ip_max=$(ipcalc $ORCH_CIDR | grep HostMax | awk '{print $2}')
+    netmask=$(ipcalc $ORCH_CIDR | grep Netmask | awk '{print $2}')
     join_token=$(docker swarm join-token manager | grep docker | awk '{print $5}')
     join_ip=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $1}')
     join_port=$(docker swarm join-token manager | grep docker | awk '{print $6}' | awk -F: '{print $2}')
@@ -197,7 +198,7 @@ startup_dnsmasq() {
                 --interface=$ORCH_LINK_NAME \
                 --bind-interfaces \
                 --dhcp-leasefile=/mnt/leases \
-                --dhcp-range=$ip_min,$ip_max,infinite \
+                --dhcp-range=$ip_min,$ip_max,$netmask,infinite \
                 --txt-record=_manager._docker-swarm.$DOMAIN,$join_token \
                 --srv-host=_docker-swarm._tcp.$DOMAIN,$join_ip,$join_port \
                 --txt-record=_datacenter._local.$DOMAIN,$DATACENTER \
