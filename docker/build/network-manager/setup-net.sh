@@ -46,7 +46,7 @@ if [ -z "$IP" ]; then
     IP=$(ip -j address | jq -r --arg i "$LINK_NAME" '.[] | select(.ifname == $i) | .addr_info[] | select(.family == "inet") | .local')
     if [ -z "$IP" ]; then
         echo "timeout 10;" > /etc/dhcp/dhclient.conf
-        dhclient -n -1 $LINK_NAME
+        dhclient -1 $LINK_NAME
     fi
 
     # If we didn't talk to a DHCP server, then we assumer we're the first on the network
@@ -59,6 +59,7 @@ if [ -z "$IP" ]; then
         octet_3=$(shuf -i $(echo $ip_min | awk -F. '{print $3}')-$(echo $ip_max | awk -F. '{print $3}') -n 1)
         octet_4=$(shuf -i $(echo $ip_min | awk -F. '{print $4}')-$(echo $ip_max | awk -F. '{print $4}') -n 1)
         IP=$octet_1.$octet_2.$octet_3.$octet_4/$(echo $CIDR | awk -F/ '{print $2}')
+        ip addr add $IP dev $LINK_NAME
     else
         config_set DNS_SERVER_IP $(get_lease_option dhcp-server-identifier)
         config_set DOMAIN $(get_lease_option domain-name)
@@ -66,4 +67,3 @@ if [ -z "$IP" ]; then
     # Save our IP address
     config_set "$LINK_NAME"_CIDR $IP
 fi
-ip addr add $IP dev $LINK_NAME
