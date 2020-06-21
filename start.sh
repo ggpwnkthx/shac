@@ -72,6 +72,7 @@ echo "DOMAIN=$DOMAIN"
 echo "DATACENTER=$DATACENTER"
 echo "RACK=$RACK"
 echo "#----------------------------------#"
+exit
 
 # Restart docker daemon in the most convenient way available
 wait_for_docker() {
