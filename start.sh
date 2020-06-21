@@ -1,19 +1,65 @@
 #!/bin/sh
 
+# Parse arguments
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -c|--config)
+            CONFIG_FILE="$2"
+            shift 2
+        ;;
+        -C|--cidr)
+            CIDR="$2"
+            shift 2
+        ;;
+        -d|--data)
+            DATA_DIR="$2"
+            shift 2
+        ;;
+        -D|--domain)
+            DOMAIN="$2"
+            shift 2
+        ;;
+        --orch-link)
+            ORCH_NET_LINK="$2"
+            shift 2
+        ;;
+        --orch-name)
+            ORCH_LINK_NAME="$2"
+            shift 2
+        ;;
+        --orch-vlan)
+            ORCH_VLAN_ID="$2"
+            shift 2
+        ;;
+        --datacenter)
+            DATACENTER="$2"
+            shift 2
+        ;;
+        --rack)
+            RACK="$2"
+            shift 2
+        ;;
+    esac
+done
+
 # Default variables
 BASEPATH=$( cd ${0%/*} && pwd -P )
-CONFIG_FILE="/etc/shac.conf"
+CONFIG_FILE=${CONFIG_FILE:="/etc/shac.conf"}
 DATA_DIR=${DATA_DIR:="/srv/cluster"}
 CIDR=${CIDR:="10.2.0.0/20"}
-ORCH_NET_LINK=${ORCH_NET_LINK:="eth0"}
+ORCH_NET_LINK=${ORCH_NET_LINK:="$(ip link | grep -v '^.*: lo' | grep -v '^ ' | head -n 1 | awk -F: '{print $2}' | xargs)"}
 ORCH_LINK_NAME=${ORCH_LINK_NAME:="orchestration"}
-ORCH_VLAN_ID=${ORCH_VLAN_ID:=2}
-DOMAIN=${DOMAIN:="example.com"}
+ORCH_VLAN_ID=${ORCH_VLAN_ID:="2"}
+DOMAIN=${DOMAIN:="develop.shac"}
 DATACENTER=${DATACENTER="default_dc"}
 RACK=${RACK="default_rk"}
 if [ -f $CONFIG_FILE ]; then
     . $CONFIG_FILE
 fi
+
+# Unset ORCH_VLAN_ID if it's not a number - assume it means untagged.
+if ! [[ $ORCH_VLAN_ID =~ ^-?[0-9]+$ ]]; then unset ORCH_VLAN_ID; fi
 
 # Restart docker daemon in the most convenient way available
 wait_for_docker() {
