@@ -58,7 +58,7 @@ if [ -f $CONFIG_FILE ]; then
 fi
 
 # Unset ORCH_VLAN_ID if it's not a number - assume it means untagged.
-if ! [[ $ORCH_VLAN_ID =~ ^-?[0-9]+$ ]]; then unset ORCH_VLAN_ID; fi
+if [ -z "$(echo $ORCH_VLAN_ID | grep '^[0-9]*$')" ]; then unset ORCH_VLAN_ID; fi
 
 # Restart docker daemon in the most convenient way available
 wait_for_docker() {
