@@ -114,6 +114,7 @@ check_prerequisites() {
 
 # Use the network-manager image to configure the host's network interfaces
 startup_orchstration_net() {
+    echo "Initializing orchestration network..."
     orch_cidr=$(echo $CIDR | awk -F/ '{print $1}')/$(($(echo $CIDR | awk -F/ '{print $2}') + 2))
     docker run --rm \
         --cap-add NET_ADMIN \
@@ -126,6 +127,7 @@ startup_orchstration_net() {
             $ORCH_LINK_NAME \
             $ORCH_VLAN_ID
     restart_docker
+    echo "... orchstration network initialized."
 }
 
 startup_networking() {

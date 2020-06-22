@@ -23,13 +23,13 @@ DOCKER_SWARM_BRIDGE_CIDR() {
 
 # Use docker containers for tool abstraction
 ipcalc() { 
-    docker run -i --rm shac/network-manager ipcalc $@ 
+    docker run -i --rm shac/base ipcalc $@ 
 }
 shift_ip() { 
-    docker run -i --rm shac/network-manager shift-ip $@ 
+    docker run -i --rm shac/base shift-ip $@ 
 }
 digg() {
-    docker run -i --rm shac/network-manager dig $@ | grep "^$1" | sed -n -e "s/.*$2//p" | xargs
+    docker run -i --rm --net=host shac/base dig $@ | grep "^$1" | sed -n -e "s/.*$2//p" | xargs
 }
 
 service_discovery() {

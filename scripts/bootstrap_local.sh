@@ -19,16 +19,16 @@ DOCKER_LOCAL_BRIDGE_CIDR() {
 
 # Use docker containers for tool abstraction
 ipcalc() { 
-    docker run -i --rm shac/network-manager ipcalc $@ 
+    docker run -i --rm shac/base ipcalc $@ 
 }
 shift_ip() { 
-    docker run -i --rm shac/network-manager shift-ip $@ 
+    docker run -i --rm shac/base shift-ip $@ 
 }
 generate_name() { 
-    docker run -i --rm shac/network-manager generate-name $@ 
+    docker run -i --rm shac/base generate-name $@ 
 }
 github_release_installer() {
-    docker run -i --rm --network host -v $BASEPATH:/usr/src/shac shac/base /usr/bin/github-release-installer $@
+    docker run -i --rm --net=host -v $BASEPATH:/usr/src/shac shac/base /usr/bin/github-release-installer $@
 }
 
 update_hostname() {
