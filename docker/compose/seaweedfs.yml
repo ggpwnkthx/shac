@@ -53,6 +53,7 @@ services:
         mode: 0755
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
+      - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       default: 
