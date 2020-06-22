@@ -17,7 +17,7 @@ DOCKER_SWARM_BRIDGE_CIDR() {
         broadcast=$(ipcalc $(echo $CIDR | awk -F/ '{print $1"/"$2+2}') | grep Broadcast | awk '{print $2}')
         DOCKER_LOCAL_BRIDGE_CIDR=$(shift_ip $broadcast 2)/$(echo $CIDR | awk -F/ '{print $2+2}')
         bbroadcast=$(ipcalc $DOCKER_LOCAL_BRIDGE_CIDR | grep Broadcast | awk '{print $2}')
-        DOCKER_SWARM_BRIDGE_CIDR=$(shift_ip $bbroadcast 2)/$DOCKER_LOCAL_BRIDGE_CIDR | awk -F/ '{print $2-1}')
+        DOCKER_SWARM_BRIDGE_CIDR=$(shift_ip $bbroadcast 2)/$(echo $DOCKER_LOCAL_BRIDGE_CIDR | awk -F/ '{print $2-1}')
     fi
 }
 
