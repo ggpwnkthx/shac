@@ -101,12 +101,6 @@ bootstrap_seaweedfs() {
             echo "Deploying seaweedfs stack..."
             env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
             echo "... deployment complete."
-        else
-            echo "Updating seaweedfs services..."
-            docker service update --force seaweedfs_master
-            docker service update --force seaweedfs_volume
-            docker service update --force seaweedfs_filer
-            echo "... update finished."
         fi
     fi
 }
