@@ -110,11 +110,13 @@ bootstrap() {
     service_discovery
     swarm_id=$(curl --unix-socket /var/run/docker.sock http://x/info 2>/dev/null | jq -r '.Swarm.NodeID')
     if [ -z "$swarm_id" ]; then
+        echo "Docker swarm init/join..."
         if [ -z "$DOCKER_SWARM_MANAGER_JOIN" ]; then
             init_docker_swarm
         else
             join_docker_swarm
         fi
+        echo "... finished swarm bootstrap."
     fi
     bootstrap_seaweedfs
 }
