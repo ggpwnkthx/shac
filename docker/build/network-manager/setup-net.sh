@@ -17,7 +17,7 @@ if [ 24 -lt $(echo $CIDR | awk -F/ '{print $2}') ]; then
 fi
 
 get_lease_option() {
-    echo $(cat /var/lib/dhcp/dhclient.leases | grep "option $1" | awk '{print $3}' | sed 's/.$//')
+    echo $(cat /var/lib/dhcp/dhclient.leases | grep "option $1 " | awk '{print $3}' | sed 's/.$//')
 }
 
 # Add or update config value
