@@ -89,7 +89,6 @@ bootstrap_seaweedfs() {
             env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
         else
             env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy --prune -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
-            docker service update --force seaweedfs_etcd
             docker service update --force seaweedfs_master
             docker service update --force seaweedfs_volume
             docker service update --force seaweedfs_filer

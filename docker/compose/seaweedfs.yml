@@ -1,14 +1,5 @@
 version: "3.8"
 services:
-  etcd:
-    image: shac/etcd:latest
-    deploy:
-      mode: global
-    environment:
-      SERVICE_NAME: "etcd"
-      MIN_SEEDS_COUNT: 1
-    volumes:
-      - ${SEAWEEDFS_DIR}/etcd:/data
   master:
     image: shac/seaweedfs:latest
     deploy:
@@ -78,4 +69,4 @@ networks:
     attachable: true
 configs:
   filer_toml:
-    file: ../build/seaweedfs/filer.toml
+    file: ../build/seaweedfs/leveldb2.toml
