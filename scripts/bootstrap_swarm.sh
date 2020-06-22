@@ -12,17 +12,13 @@ CIDR=${CIDR:=$4}
 DOMAIN=${DOMAIN:=$5}
 
 # Dynamic Variables
-DOCKER_LOCAL_BRIDGE_CIDR() {
-    if [ -z "$DOCKER_LOCAL_BRIDGE_CIDR" ]; then
-        DOCKER_LOCAL_BRIDGE_CIDR=$(shift_ip $(ipcalc $(echo $CIDR | awk -F/ '{print $1"/"$2+2}') | grep Broadcast | awk '{print $2}') 2)/$(echo $CIDR | awk -F/ '{print $2+2}')
-    fi
-    echo $DOCKER_LOCAL_BRIDGE_CIDR
-}
 DOCKER_SWARM_BRIDGE_CIDR() {
     if [ -z "$DOCKER_SWARM_BRIDGE_CIDR" ]; then
-        DOCKER_SWARM_BRIDGE_CIDR=$(shift_ip $(ipcalc $(DOCKER_LOCAL_BRIDGE_CIDR) | grep Broadcast | awk '{print $2}') 2)/$(DOCKER_LOCAL_BRIDGE_CIDR | awk -F/ '{print $2-1}')
+        broadcast=$(ipcalc $(echo $CIDR | awk -F/ '{print $1"/"$2+2}') | grep Broadcast | awk '{print $2}')
+        DOCKER_LOCAL_BRIDGE_CIDR=$(shift_ip $broadcast 2)/$(echo $CIDR | awk -F/ '{print $2+2}')
+        bbroadcast=$(ipcalc $DOCKER_LOCAL_BRIDGE_CIDR | grep Broadcast | awk '{print $2}')
+        DOCKER_SWARM_BRIDGE_CIDR=$(shift_ip $bbroadcast 2)/$DOCKER_LOCAL_BRIDGE_CIDR | awk -F/ '{print $2-1}')
     fi
-    echo $DOCKER_SWARM_BRIDGE_CIDR
 }
 
 # Use docker containers for tool abstraction
@@ -32,25 +28,27 @@ ipcalc() {
 shift_ip() { 
     docker run -i --rm shac/network-manager shift-ip $@ 
 }
-dig() {
-    docker run -i --rm shac/network-manager dig $@ 
+digg() {
+    docker run -i --rm shac/network-manager dig $@ | grep "^$1" | sed -n -e "s/.*$2//p" | xargs
 }
 
 service_discovery() {
     if [ ! -z "$DNS_SERVER_IP" ]; then
-        DOCKER_SWARM_MANAGER_TOKEN=$(dig _manager._docker-swarm.$DOMAIN TXT @$DNS_SERVER_IP)
-        DOCKER_SWARM_PORT=$(dig _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
-        DATACENTER=$(dig _datacenter._local.$DOMAIN TXT @$DNS_SERVER_IP)
-        RACK=$(dig _rack._local.$DOMAIN TXT @$DNS_SERVER_IP)
+        DOCKER_SWARM_MANAGER_TOKEN=$(digg _manager._docker-swarm.$DOMAIN TXT @$DNS_SERVER_IP)
+        DOCKER_SWARM_PORT=$(digg _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
+        DATACENTER=$(digg _datacenter._local.$DOMAIN TXT @$DNS_SERVER_IP)
+        RACK=$(digg _rack._local.$DOMAIN TXT @$DNS_SERVER_IP)
     fi
 }
 
 # Initialize the docker swarm
 init_docker_swarm() {
     if [ -z "$(docker swarm join-token manager 2>/dev/null)" ]; then
+        DOCKER_SWARM_BRIDGE_CIDR
+        subnet=$(ipcalc $DOCKER_SWARM_BRIDGE_CIDR) | grep Network | awk '{print $2}')
         docker network create \
-            --subnet=$(ipcalc $(DOCKER_SWARM_BRIDGE_CIDR) | grep Network | awk '{print $2}') \
-            --gateway=$(DOCKER_SWARM_BRIDGE_CIDR | awk -F/ '{print $1}') \
+            --subnet=$subnet \
+            --gateway=$DOCKER_SWARM_BRIDGE_CIDR | awk -F/ '{print $1}') \
             -o com.docker.network.bridge.enable_icc=false \
             -o com.docker.network.bridge.name=docker_gwbridge \
             -o com.docker.network.bridge.enable_ip_masquerade=true \
