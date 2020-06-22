@@ -86,9 +86,10 @@ bootstrap_seaweedfs() {
         
         services=$(curl --unix-socket /var/run/docker.sock http://x/services 2>/dev/null | jq -r '.[] | select(.Spec.Labels."com.docker.stack.namespace"=="seaweedfs") | .Spec.Name')
         if [ -z "$services" ]; then
+            echo "Deploying seaweedfs stack..."
             env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
         else
-            env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy --prune -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
+            echo "Updating seaweedfs services..."
             docker service update --force seaweedfs_master
             docker service update --force seaweedfs_volume
             docker service update --force seaweedfs_filer
