@@ -204,6 +204,7 @@ startup_dnsmasq() {
                 --no-hosts \
                 --interface=$ORCH_LINK_NAME \
                 --bind-interfaces \
+                --domain=$DOMAIN \
                 --dhcp-leasefile=/mnt/leases \
                 --dhcp-range=$ip_min,$ip_max,$netmask,infinite \
                 --txt-record=_manager._docker-swarm.$DOMAIN,$join_token \
@@ -234,6 +235,7 @@ clean_up() {
     config_set ORCH_VLAN_ID $ORCH_VLAN_ID
     config_set ORCH_LINK_NAME $ORCH_LINK_NAME
     config_set CIDR $CIDR
+    config_set DOMAIN $DOMAIN
 }
 
 startup_sequence() {
