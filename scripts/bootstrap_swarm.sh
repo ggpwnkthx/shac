@@ -45,23 +45,32 @@ service_discovery() {
     fi
 }
 
+# Initialize swarm bridge
+init_docker_swarm_bridge() {
+    DOCKER_SWARM_BRIDGE_CIDR
+    subnet=$(ipcalc $DOCKER_SWARM_BRIDGE_CIDR | grep Network | awk '{print $2}')
+    gateway=$(echo $DOCKER_SWARM_BRIDGE_CIDR | awk -F/ '{print $1}')
+    docker network create \
+        --subnet=$subnet \
+        --gateway=$gateway \
+        -o com.docker.network.bridge.enable_icc=false \
+        -o com.docker.network.bridge.name=docker_gwbridge \
+        -o com.docker.network.bridge.enable_ip_masquerade=true \
+        docker_gwbridge
+}
+
 # Initialize the docker swarm
 init_docker_swarm() {
-    if [ -z "$(docker swarm join-token manager 2>/dev/null)" ]; then
-        DOCKER_SWARM_BRIDGE_CIDR
-        subnet=$(ipcalc $DOCKER_SWARM_BRIDGE_CIDR | grep Network | awk '{print $2}')
-        gateway=$(echo $DOCKER_SWARM_BRIDGE_CIDR | awk -F/ '{print $1}')
-        docker network create \
-            --subnet=$subnet \
-            --gateway=$gateway \
-            -o com.docker.network.bridge.enable_icc=false \
-            -o com.docker.network.bridge.name=docker_gwbridge \
-            -o com.docker.network.bridge.enable_ip_masquerade=true \
-            docker_gwbridge
-        docker swarm init \
-            --listen-addr $SWARM_LINK_NAME:2377 \
-            --advertise-addr $SWARM_LINK_NAME:2377 >/dev/null
-    fi
+    init_docker_swarm_bridge
+    docker swarm init \
+        --listen-addr $SWARM_LINK_NAME:2377 \
+        --advertise-addr $SWARM_LINK_NAME:2377 >/dev/null
+}
+
+# Join an existing docker swarm
+join_docker_swarm() {
+    init_docker_swarm_bridge
+    docker swarm join --token $DOCKER_SWARM_MANAGER_TOKEN $DOCKER_SWARM_IP:$DOCKER_SWARM_PORT
 }
 
 bootstrap_seaweedfs() {
@@ -100,11 +109,6 @@ bootstrap_seaweedfs() {
             echo "... update finished."
         fi
     fi
-}
-
-# Join an existing docker swarm
-join_docker_swarm() {
-    docker swarm join --token $DOCKER_SWARM_MANAGER_TOKEN $DOCKER_SWARM_IP:$DOCKER_SWARM_PORT
 }
 
 bootstrap() {
