@@ -45,10 +45,11 @@ service_discovery() {
 init_docker_swarm() {
     if [ -z "$(docker swarm join-token manager 2>/dev/null)" ]; then
         DOCKER_SWARM_BRIDGE_CIDR
-        subnet=$(ipcalc $DOCKER_SWARM_BRIDGE_CIDR) | grep Network | awk '{print $2}')
+        subnet=$(ipcalc $DOCKER_SWARM_BRIDGE_CIDR | grep Network | awk '{print $2}')
+        gateway=$(echo $DOCKER_SWARM_BRIDGE_CIDR | awk -F/ '{print $1}')
         docker network create \
             --subnet=$subnet \
-            --gateway=$DOCKER_SWARM_BRIDGE_CIDR | awk -F/ '{print $1}') \
+            --gateway=$gateway \
             -o com.docker.network.bridge.enable_icc=false \
             -o com.docker.network.bridge.name=docker_gwbridge \
             -o com.docker.network.bridge.enable_ip_masquerade=true \
