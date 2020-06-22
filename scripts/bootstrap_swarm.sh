@@ -38,6 +38,10 @@ service_discovery() {
         DOCKER_SWARM_PORT=$(digg _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
         DATACENTER=$(digg _datacenter._local.$DOMAIN TXT @$DNS_SERVER_IP)
         RACK=$(digg _rack._local.$DOMAIN TXT @$DNS_SERVER_IP)
+        echo $DOCKER_SWARM_MANAGER_TOKEN
+        echo $DOCKER_SWARM_PORT
+        echo $DATACENTER
+        echo $RACK
     fi
 }
 

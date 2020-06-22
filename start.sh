@@ -113,25 +113,30 @@ check_prerequisites() {
 }
 
 # Use the network-manager image to configure the host's network interfaces
-startup_orchstration_vlan() {
-    # Skip config if our expected IP address is already reachable
-    if [ $(ping -c 1 $(echo $CIDR | awk -F/ '{print $1}') >/dev/null ; echo $?) -gt 0 ];  then 
-        docker run --rm \
-            --cap-add NET_ADMIN \
-            --net=host \
-            -v $CONFIG_FILE:/mnt/config \
-            shac/network-manager \
-            setup-net \
-                $(echo $CIDR | awk -F/ '{print $1}')/$(($(echo $CIDR | awk -F/ '{print $2}') + 2)) \
-                $ORCH_NET_LINK \
-                $ORCH_LINK_NAME \
-                $ORCH_VLAN_ID
-        restart_docker
-    fi
+startup_orchstration_net() {
+    orch_cidr=$(echo $CIDR | awk -F/ '{print $1}')/$(($(echo $CIDR | awk -F/ '{print $2}') + 2))
+    docker run --rm \
+        --cap-add NET_ADMIN \
+        --net=host \
+        -v $CONFIG_FILE:/mnt/config \
+        shac/network-manager \
+        setup-net \
+            $orch_cidr \
+            $ORCH_NET_LINK \
+            $ORCH_LINK_NAME \
+            $ORCH_VLAN_ID
+    restart_docker
 }
 
 startup_networking() {
-    startup_orchstration_vlan
+    if [ -z "$ORCH_CIDR" ]; then
+        startup_orchstration_net
+    else
+        # Skip config if our expected IP address is already reachable
+        if [ $(ping -c 1 $(echo $ORCH_CIDR | awk -F/ '{print $1}') >/dev/null ; echo $?) -gt 0 ];  then
+            startup_orchstration_net
+        fi
+    fi
 }
 
 mount_distributed_storage() {
