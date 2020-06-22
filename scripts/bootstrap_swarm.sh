@@ -34,6 +34,7 @@ digg() {
 
 service_discovery() {
     if [ ! -z "$DNS_SERVER_IP" ]; then
+        docker run -i --rm shac/base dig _manager._docker-swarm.$DOMAIN TXT @$DNS_SERVER_IP
         DOCKER_SWARM_MANAGER_TOKEN=$(digg _manager._docker-swarm.$DOMAIN TXT @$DNS_SERVER_IP)
         DOCKER_SWARM_PORT=$(digg _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
         DATACENTER=$(digg _datacenter._local.$DOMAIN TXT @$DNS_SERVER_IP)
