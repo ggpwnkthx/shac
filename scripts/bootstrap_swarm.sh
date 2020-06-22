@@ -36,9 +36,10 @@ digg() {
 
 service_discovery() {
     if [ ! -z "$DNS_SERVER_IP" ]; then
-        docker run -i --rm shac/base dig _manager._docker-swarm.$DOMAIN TXT @$DNS_SERVER_IP
+        echo "Discovering accessible services..."
         DOCKER_SWARM_MANAGER_TOKEN=$(digg _manager._docker-swarm.$DOMAIN TXT @$DNS_SERVER_IP)
-        DOCKER_SWARM_PORT=$(digg _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP)
+        DOCKER_SWARM_IP=$(digg _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP | awk '{print $4}' | rev | cut -c2- | rev)
+        DOCKER_SWARM_PORT=$(digg _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP | awk '{print $3}')
         DATACENTER=$(digg _datacenter._local.$DOMAIN TXT @$DNS_SERVER_IP)
         RACK=$(digg _rack._local.$DOMAIN TXT @$DNS_SERVER_IP)
         echo $DOCKER_SWARM_MANAGER_TOKEN
@@ -94,18 +95,20 @@ bootstrap_seaweedfs() {
         if [ -z "$services" ]; then
             echo "Deploying seaweedfs stack..."
             env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
+            echo "... deployment complete."
         else
             echo "Updating seaweedfs services..."
             docker service update --force seaweedfs_master
             docker service update --force seaweedfs_volume
             docker service update --force seaweedfs_filer
+            echo "... update finished."
         fi
     fi
 }
 
 # Join an existing docker swarm
 join_docker_swarm() {
-    docker swarm join --token $DOCKER_SWARM_MANAGER_TOKEN $DNS_SERVER_IP:$DOCKER_SWARM_PORT
+    docker swarm join --token $DOCKER_SWARM_MANAGER_TOKEN $DOCKER_SWARM_IP:$DOCKER_SWARM_PORT
 }
 
 bootstrap() {
