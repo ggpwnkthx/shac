@@ -47,7 +47,6 @@ if [ -z "$IP" ]; then
     if [ -z "$IP" ]; then
         echo "timeout 10;" > /etc/dhcp/dhclient.conf
         dhclient -1 $LINK_NAME
-        cat /var/lib/dhcp/dhclient.leases
     fi
 
     # If we didn't talk to a DHCP server, then we assumer we're the first on the network

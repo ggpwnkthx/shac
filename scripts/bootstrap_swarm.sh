@@ -42,10 +42,6 @@ service_discovery() {
         DOCKER_SWARM_PORT=$(digg _docker-swarm._tcp.$DOMAIN SRV @$DNS_SERVER_IP | awk '{print $3}')
         DATACENTER=$(digg _datacenter._local.$DOMAIN TXT @$DNS_SERVER_IP)
         RACK=$(digg _rack._local.$DOMAIN TXT @$DNS_SERVER_IP)
-        echo $DOCKER_SWARM_MANAGER_TOKEN
-        echo $DOCKER_SWARM_PORT
-        echo $DATACENTER
-        echo $RACK
     fi
 }
 
@@ -116,10 +112,11 @@ bootstrap() {
     service_discovery
     swarm_id=$(curl --unix-socket /var/run/docker.sock http://x/info 2>/dev/null | jq -r '.Swarm.NodeID')
     if [ -z "$swarm_id" ]; then
-        echo "Docker swarm init/join..."
-        if [ -z "$DOCKER_SWARM_MANAGER_JOIN" ]; then
+        if [ -z "$DOCKER_SWARM_MANAGER_TOKEN" ]; then
+            echo "Docker swarm init..."
             init_docker_swarm
         else
+            echo "Docker swarm join..."
             join_docker_swarm
         fi
         echo "... finished swarm bootstrap."
