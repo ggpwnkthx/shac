@@ -47,15 +47,6 @@ if [ -z "$RACK" ]; then
     if [ "$RACK" = "null" ]; then unset RACK; fi
 fi
 
-# String Formatting Functions
-formatConnectionString() {
-    for ip in $@; do
-        echo $ip:80
-    done | \
-    xargs | \
-    sed -e 's/\s\+/,/g'
-}
-
 # Wait for the filer's store to be healthy
 waitForFilerStore() {
     store=$(head -n 1 /etc/seaweedfs/filer.toml | sed 's/[][]//g')
@@ -96,60 +87,13 @@ waitForFilerStore() {
     esac
 }
 
-# Swarm functions
-getAllTaskIDsByServiceName() {
-    ids=$( \
-        curl --unix-socket /var/run/docker.sock http://x/tasks 2>/dev/null | \
-        jq -r --arg SERVICE $1 '
-            .[] |
-            select(.Spec.ContainerSpec.Labels."com.docker.stack.namespace"=="seaweedfs") |
-            select(.DesiredState=="running") |
-            select(
-                .Spec.Networks[].Aliases[] | 
-                contains($SERVICE)
-            ) |
-            .ID
-        '
-    )
-    for id in $ids; do
-        if [ "$id" != "$TASK_ID" ]; then echo $id; fi
-    done
-}
-getLocalTaskIDsByServiceName() {
-    curl --unix-socket /var/run/docker.sock http://x/tasks 2>/dev/null | \
-    jq -r --arg NODE_ID $NODE_ID --arg SERVICE $1 '
-        .[] |
-        select(.Node==$NODE_ID) |
-        select(.Spec.ContainerSpec.Labels."com.docker.stack.namespace"=="seaweedfs") |
-        select(.DesiredState=="running") |
-        select(
-            .Spec.Networks[].Aliases[] | 
-            contains($SERVICE)
-        ) |
-        .ID
-    '
-}
-getTaskIPByIDs() {
-    for id in $@; do
-        curl --unix-socket /var/run/docker.sock http://x/tasks/$id 2>/dev/null | \
-        jq -r '.NetworksAttachments[] | select(.Network.Spec.Name=="seaweedfs_default") | .Addresses[]' | \
-        awk -F/ '{print $1}'
-    done
-}
-getConnectionStringByServiceName() {
-    formatConnectionString $(getTaskIPByIDs $(getAllTaskIDsByServiceName $1))
-}
-getLocalConnectionStringByServiceName() {
-    formatConnectionString $(getTaskIPByIDs $(getLocalTaskIDsByServiceName $1))
-}
-
 waitForHTTP() {
     echo "Waiting for $1 ..."
     while [ -z "$html" ]; do
         html=$(curl -f $1 2>/dev/null)
     done
 }
-waitForServicesByConnectionString() {
+waitForHTTPByConnectionString() {
     IFS=',' read -r -a nodes <<< "$1"
     for node in ${nodes[@]}; do
         waitForHTTP http://$node$2
@@ -162,43 +106,33 @@ case "$SERVICE" in
         ARGS="$ARGS -ip=$IP -port=80 -mdir=/data -volumePreallocate"
         if [ ! -z "$MAX_VOLUME_SIZE" ]; then ARGS="$ARGS -volumeSizeLimitMB=$MAX_VOLUME_SIZE"; fi
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
-        while [ -z "$(echo $peers | grep ',')" ]; do 
-            peers=$(getConnectionStringByServiceName master)
-            sleep 5
-            i=$(($i+1))
-            if [ $i -ge 5 ]; then break; fi
-        done
-        ARGS="$ARGS -peers=$peers"
+        ARGS="$ARGS -peers=master-1:80,master-2:80,master-3:80"
     ;;
     'volume')
         ARGS="$ARGS -ip=$IP -port=80 -dir=/data"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        while [ -z "$peers" ]; do peers=$(getConnectionStringByServiceName master); done
-        ARGS="$ARGS -mserver=$peers"
-        waitForServicesByConnectionString $peers
+        ARGS="$ARGS -mserver=master-1:80,master-2:80,master-3:80"
+        waitForHTTPByConnectionString master-1:80,master-2:80,master-3:80
     ;;
     'filer')
         ARGS="$ARGS -ip=$IP -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        while [ -z "$peers" ]; do peers=$(getConnectionStringByServiceName master); done
-        ARGS="$ARGS -master=$peers"
-        waitForServicesByConnectionString $peers
+        ARGS="$ARGS -master=master-1:80,master-2:80,master-3:80"
+        waitForHTTPByConnectionString master-1:80,master-2:80,master-3:80
         waitForFilerStore
     ;;
     's3')
         if [ -f /run/secret/seaweedfs_key ]; then ARGS="$ARGS -key.file=/run/secret/seaweedfs_key"; fi
         if [ -f /run/secret/seaweedfs_cert ]; then ARGS="$ARGS -cert.file=/run/secret/seaweedfs_cert"; fi
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
-        while [ -z "$peers" ]; do peers=$(getLocalConnectionStringByServiceName filer); done
-        waitForServicesByConnectionString $peers
-        ARGS="$ARGS -port=80 --filer=$peers"
+        ARGS="$ARGS -port=80 --filer=filer:80"
+        waitForHTTPByConnectionString filer:80
     ;;
     'webdav')
-        while [ -z "$peers" ]; do peers=$(getLocalConnectionStringByServiceName filer); done
-        waitForServicesByConnectionString $peers
-        ARGS="$ARGS -port=80 -filer=$peers"
+        ARGS="$ARGS -port=80 -filer=filer:80"
+        waitForHTTPByConnectionString filer:80
     ;;
 esac
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
