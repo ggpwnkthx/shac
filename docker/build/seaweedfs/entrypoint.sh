@@ -177,14 +177,13 @@ case "$SERVICE" in
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
         peers=$(getConnectionStringByServiceName master)
         if [ -z "$peers" ]; then 
-        ARGS="$ARGS -mserver=$peers"
+            ARGS="$ARGS -mserver=$peers"
             waitForServicesByConnectionString $peers
         fi
     ;;
     'filer')
         ARGS="$ARGS -ip=$IP -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        if [ ! -z "$TASK_ID" ]; then
         peers=$(getConnectionStringByServiceName master)
         if [ -z "$peers" ]; then 
             ARGS="$ARGS -master=$peers"
