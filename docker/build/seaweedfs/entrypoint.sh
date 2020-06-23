@@ -1,14 +1,16 @@
 #!/bin/bash
 
 # Discover container ID
-ID=$(
-    curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
-    jq -r --arg NAME $NAME '
-        .[] |
-        select(.Names[] | contains($NAME)) |
-        .Id
-    '
-)
+while [ -z "$ID" ]; do
+    ID=$(
+        curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
+        jq -r --arg NAME $NAME '
+            .[] |
+            select(.Names[] | contains($NAME)) |
+            .Id
+        '
+    )
+done
 # Discover IP address
 IP=$(
     curl --unix-socket /var/run/docker.sock http://x/networks/seaweedfs_default 2>/dev/null | \
@@ -26,13 +28,11 @@ TASK_ID=$(
     jq -r '.Config.Labels."com.docker.swarm.task.id"'
 )
 # Discover service mode by environmental variable or through swarm label
-if [ -z "$SERVICE" ]; then
-    SERVICE=$(
-        curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
-        jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
-        awk -F_ '{print $NF}'
-    )
-fi
+SERVICE=$(
+    curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
+    jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
+    awk -F_ '{print $NF}'
+)
 
 # Discover datacenter and rack details via environmental variables or through node labels.
 # If nothing found, unset the variables so seaweedfs uses internal defaults.
