@@ -157,7 +157,7 @@ case "$SERVICE" in
         ARGS="$ARGS -ip=$IP -port=80 -mdir=/data -volumePreallocate"
         if [ ! -z "$MAX_VOLUME_SIZE" ]; then ARGS="$ARGS -volumeSizeLimitMB=$MAX_VOLUME_SIZE"; fi
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
-        while [ -z "$peers" ]; do 
+        while [ -z "$(echo $peers | grep ',')" ]; do 
             peers=$(getConnectionStringByServiceName master)
             sleep 5
             i=$(($i+1))
