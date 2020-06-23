@@ -13,43 +13,35 @@ ID=$( \
     curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
     jq -r '.Id' \
 )
-# Discover the local node ID
-NODE_ID=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.node.id"' \
-)
-# Get local docker node hostname by environmental variable or through swarm label
-if [ -z "$NODE" ]; then
-    NODE=$( \
-        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID | \
-        jq -r '.Description.Hostname' | \
-        awk -F. '{print $1}' \
-    )
-fi
-# Discover Task ID
-TASK_ID=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.task.id"' \
-)
 # Discover IP address
 IP=$(
     curl --unix-socket /var/run/docker.sock http://x/networks/seaweedfs_default 2>/dev/null | \
     jq --arg ID $ID -r '.Containers."\($ID)".IPv4Address' | \
     awk -F/ '{print $1}'
 )
+# Discover the local node ID
+NODE_ID=$( \
+    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+    jq -r '.Config.Labels."com.docker.swarm.node.id"' \
+)
+# Discover Task ID
+TASK_ID=$( \
+    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+    jq -r '.Config.Labels."com.docker.swarm.task.id"' \
+)
 
 # Discover datacenter and rack details via environmental variables or through node labels.
 # If nothing found, unset the variables so seaweedfs uses internal defaults.
 if [ -z "$DATACENTER" ]; then
     DATACENTER=$( \
-        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
+        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID 2>/dev/null | \
         jq -r '.Spec.Labels.datacenter'
     )
     if [ "$DATACENTER" = "null" ]; then unset DATACENTER; fi
 fi
 if [ -z "$RACK" ]; then
     RACK=$( \
-        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE 2>/dev/null | \
+        curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID 2>/dev/null | \
         jq -r '.Spec.Labels.rack' \
     )
     if [ "$RACK" = "null" ]; then unset RACK; fi
@@ -122,12 +114,13 @@ getAllTaskIDsByServiceName() {
 }
 getLocalTaskIDsByServiceName() {
     curl --unix-socket /var/run/docker.sock http://x/tasks 2>/dev/null | \
-    jq -r --arg NODE_ID $NODE_ID --arg SERVICE $1'
+    jq -r --arg NODE_ID $NODE_ID --arg SERVICE $1 '
         .[] |
         select(.Node==$NODE_ID) |
         select(.Spec.ContainerSpec.Labels."com.docker.stack.namespace"=="seaweedfs") |
         select(.DesiredState=="running") |
-        select(.Spec.Networks[].Aliases[] | contains($SERVICE)) |
+        select(.Spec.Networks[].Aliases[] | 
+        contains($SERVICE)) |
         .ID
     '
 }
@@ -167,6 +160,7 @@ case "$SERVICE" in
         i=0
         while [ -z "$peers" ]; do 
             peers=$(getConnectionStringByServiceName master)
+            echo $peers
             sleep 5
             i=$(($i+1))
             if [ $i -ge 5 ]; then break; fi

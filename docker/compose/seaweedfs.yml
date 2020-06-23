@@ -3,14 +3,17 @@ services:
   master:
     image: shac/seaweedfs:latest
     deploy:
-      mode: global
+      replicas: 3
+      endpoint_mode: vip
+      placement:
+        constraints:
+          - "node.role==manager"
     environment:
       - NODE="{{.Node.Hostname}}"
       - MAX_VOLUME_SIZE=128
       - REPLICATION=002
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
-      - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       default: 
@@ -25,6 +28,9 @@ services:
     image: shac/seaweedfs:latest
     deploy:
       mode: global
+      placement:
+        constraints:
+          - "node.role==manager"
     environment:
       - NODE="{{.Node.Hostname}}"
       - MAX_VOLUMES=4
