@@ -168,7 +168,7 @@ case "$SERVICE" in
         while [ -z "$peers" ]; do 
             peers=$(getConnectionStringByServiceName master)
             sleep 5
-            i=(($i+1))
+            i=$(($i+1))
             if $i -ge 5; then break; fi
         done
         if [ -z "$peers" ]; then 
