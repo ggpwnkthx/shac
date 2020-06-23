@@ -9,7 +9,6 @@ services:
         constraints:
           - "node.role==manager"
     environment:
-      - NODE="{{.Node.Hostname}}"
       - MAX_VOLUME_SIZE=128
       - REPLICATION=002
     volumes:
@@ -19,7 +18,7 @@ services:
     networks:
       default: 
         aliases:
-          - "{{.Service.Name}}.{{.Node.Hostname}}"
+          - {{.Task.Slot}}.{{.Service.Name}}.shac
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
@@ -33,7 +32,6 @@ services:
         constraints:
           - "node.role==manager"
     environment:
-      - NODE="{{.Node.Hostname}}"
       - MAX_VOLUMES=4
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
@@ -42,7 +40,7 @@ services:
     networks:
       default:
         aliases:
-          - "{{.Service.Name}}.{{.Node.Hostname}}"
+          - {{.Task.Slot}}.{{.Service.Name}}.shac
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 1s
@@ -52,8 +50,6 @@ services:
     image: shac/seaweedfs:latest
     deploy:
       mode: global
-    environment:
-      - NODE="{{.Node.Hostname}}"
     configs:
       - source: filer_toml
         target: /etc/seaweedfs/filer.toml
@@ -65,7 +61,7 @@ services:
     networks:
       default: 
         aliases:
-          - "{{.Service.Name}}.{{.Node.Hostname}}"
+          - {{.Task.Slot}}.{{.Service.Name}}.shac
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s

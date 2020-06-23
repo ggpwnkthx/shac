@@ -104,7 +104,10 @@ getAllTaskIDsByServiceName() {
             .[] |
             select(.Spec.ContainerSpec.Labels."com.docker.stack.namespace"=="seaweedfs") |
             select(.DesiredState=="running") |
-            select(.Spec.Networks[].Aliases[] | contains($SERVICE)) |
+            select(
+                .Spec.Networks[].Aliases[] | 
+                contains($SERVICE)
+            ) |
             .ID
         '
     )
@@ -119,8 +122,10 @@ getLocalTaskIDsByServiceName() {
         select(.Node==$NODE_ID) |
         select(.Spec.ContainerSpec.Labels."com.docker.stack.namespace"=="seaweedfs") |
         select(.DesiredState=="running") |
-        select(.Spec.Networks[].Aliases[] | 
-        contains($SERVICE)) |
+        select(
+            .Spec.Networks[].Aliases[] | 
+            contains($SERVICE)
+        ) |
         .ID
     '
 }
