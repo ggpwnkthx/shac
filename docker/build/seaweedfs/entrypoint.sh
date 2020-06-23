@@ -175,32 +175,28 @@ case "$SERVICE" in
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        peers=$(getConnectionStringByServiceName master)
-        if [ -z "$peers" ]; then 
-            ARGS="$ARGS -mserver=$peers"
-            waitForServicesByConnectionString $peers
-        fi
+        while [ -z "$peers" ]; do peers=$(getConnectionStringByServiceName master); done
+        ARGS="$ARGS -mserver=$peers"
+        waitForServicesByConnectionString $peers
     ;;
     'filer')
         ARGS="$ARGS -ip=$IP -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        peers=$(getConnectionStringByServiceName master)
-        if [ -z "$peers" ]; then 
-            ARGS="$ARGS -master=$peers"
-            waitForServicesByConnectionString $peers
-        fi
+        while [ -z "$peers" ]; do peers=$(getConnectionStringByServiceName master); done
+        ARGS="$ARGS -master=$peers"
+        waitForServicesByConnectionString $peers
         waitForFilerStore
     ;;
     's3')
         if [ -f /run/secret/seaweedfs_key ]; then ARGS="$ARGS -key.file=/run/secret/seaweedfs_key"; fi
         if [ -f /run/secret/seaweedfs_cert ]; then ARGS="$ARGS -cert.file=/run/secret/seaweedfs_cert"; fi
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
-        peers=$(getLocalConnectionStringByServiceName filer)
+        while [ -z "$peers" ]; do peers=$(getLocalConnectionStringByServiceName filer); done
         waitForServicesByConnectionString $peers
         ARGS="$ARGS -port=80 --filer=$peers"
     ;;
     'webdav')
-        peers=$(getLocalConnectionStringByServiceName filer)
+        while [ -z "$peers" ]; do peers=$(getLocalConnectionStringByServiceName filer); done
         waitForServicesByConnectionString $peers
         ARGS="$ARGS -port=80 -filer=$peers"
     ;;
