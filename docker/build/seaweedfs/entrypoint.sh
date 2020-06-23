@@ -169,7 +169,7 @@ case "$SERVICE" in
             peers=$(getConnectionStringByServiceName master)
             sleep 5
             i=$(($i+1))
-            if $i -ge 5; then break; fi
+            if [ $i -ge 5 ]; then break; fi
         done
         if [ -z "$peers" ]; then 
             echo "\"$peers\""
