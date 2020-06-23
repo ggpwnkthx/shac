@@ -17,7 +17,7 @@ services:
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default
+      - default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
@@ -38,7 +38,7 @@ services:
       - ${SEAWEEDFS_DIR}/volumes:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default
+      - default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 1s
@@ -58,7 +58,7 @@ services:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default
+      - default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
