@@ -1,2 +1,2 @@
 FROM shac/base
-RUN apk --no-cache add git docker
+RUN apk --no-cache add docker
