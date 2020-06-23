@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Discover container ID
+echo $NAME
 while [ -z "$ID" ]; do
     ID=$(
         curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
