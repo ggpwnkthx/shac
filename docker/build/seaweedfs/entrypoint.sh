@@ -1,17 +1,13 @@
 #!/bin/bash
 
-# Discover service mode by environmental variable or through swarm label
-if [ -z "$SERVICE" ]; then
-    SERVICE=$( \
-        curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-        jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
-        awk -F_ '{print $NF}'
-    )
-fi
 # Discover container ID
-ID=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Id' \
+ID=$(
+    curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
+    jq -r --arg NAME $NAME '
+        .[] |
+        select(.Names[] | contains($NAME)) |
+        .Id
+    '
 )
 # Discover IP address
 IP=$(
@@ -20,29 +16,37 @@ IP=$(
     awk -F/ '{print $1}'
 )
 # Discover the local node ID
-NODE_ID=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.node.id"' \
+NODE_ID=$(
+    curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
+    jq -r '.Config.Labels."com.docker.swarm.node.id"'
 )
 # Discover Task ID
-TASK_ID=$( \
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.task.id"' \
+TASK_ID=$(
+    curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
+    jq -r '.Config.Labels."com.docker.swarm.task.id"'
 )
+# Discover service mode by environmental variable or through swarm label
+if [ -z "$SERVICE" ]; then
+    SERVICE=$(
+        curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
+        jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
+        awk -F_ '{print $NF}'
+    )
+fi
 
 # Discover datacenter and rack details via environmental variables or through node labels.
 # If nothing found, unset the variables so seaweedfs uses internal defaults.
 if [ -z "$DATACENTER" ]; then
-    DATACENTER=$( \
+    DATACENTER=$(
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID 2>/dev/null | \
         jq -r '.Spec.Labels.datacenter'
     )
     if [ "$DATACENTER" = "null" ]; then unset DATACENTER; fi
 fi
 if [ -z "$RACK" ]; then
-    RACK=$( \
+    RACK=$(
         curl --unix-socket /var/run/docker.sock http://x/nodes/$NODE_ID 2>/dev/null | \
-        jq -r '.Spec.Labels.rack' \
+        jq -r '.Spec.Labels.rack'
     )
     if [ "$RACK" = "null" ]; then unset RACK; fi
 fi
