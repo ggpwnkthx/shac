@@ -171,7 +171,7 @@ case "$SERVICE" in
             i=$(($i+1))
             if [ $i -ge 5 ]; then break; fi
         done
-        if [ -z "$peers" ]; then 
+        if [ ! -z "$peers" ]; then 
             echo "\"$peers\""
             ARGS="$ARGS -peers=$peers"
             waitForServicesByConnectionString $peers
