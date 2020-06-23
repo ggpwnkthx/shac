@@ -24,16 +24,13 @@ DOCKER_SWARM_BRIDGE_CIDR() {
 }
 
 # Use docker containers for tool abstraction
-ipcalc() { 
-    set -x
+ipcalc() {
     docker run -i --rm shac/base ipcalc $@ 
 }
-shift_ip() { 
-    set -x
+shift_ip() {
     $BASEPATH/scripts/shift-ip.sh $@ 
 }
 digg() {
-    set -x
     docker run -i --rm --net=host shac/base dig $@ | \
     grep "^$1" | \
     sed -n -e "s/.*$2//p" | \

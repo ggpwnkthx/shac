@@ -166,6 +166,7 @@ case "$SERVICE" in
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
         peers=$(getConnectionStringByServiceName master)
         if [ -z "$peers" ]; then 
+            echo "\"$peers\""
             ARGS="$ARGS -peers=$peers"
             waitForServicesByConnectionString $peers
         fi
