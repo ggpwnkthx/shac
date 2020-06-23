@@ -14,7 +14,7 @@ DOMAIN=${DOMAIN:=$5}
 # Dynamic Variables
 DOCKER_SWARM_BRIDGE_CIDR() {
     if [ -z "$DOCKER_SWARM_BRIDGE_CIDR" ]; then
-        echo "Discovering swarm bidge CIDR..."
+        echo "Discovering swarm bridge CIDR..."
         broadcast=$(ipcalc $(echo $CIDR | awk -F/ '{print $1"/"$2+2}') | grep Broadcast | awk '{print $2}')
         DOCKER_LOCAL_BRIDGE_CIDR=$(shift_ip $broadcast 2)/$(echo $CIDR | awk -F/ '{print $2+2}')
         bbroadcast=$(ipcalc $DOCKER_LOCAL_BRIDGE_CIDR | grep Broadcast | awk '{print $2}')
@@ -93,10 +93,10 @@ bootstrap_seaweedfs() {
         docker_node_datacenter=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.datacenter')
         docker_node_rack=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.rack')
         if [ "$docker_node_datacenter" = "null" ]; then
-            docker node update --label-add datacenter=$DATACENTER $docker_node
+            docker node update --label-add datacenter=$DATACENTER $docker_node 2>/dev/null
         fi
         if [ "$docker_node_rack" = "null" ]; then
-            docker node update --label-add rack=$RACK $docker_node
+            docker node update --label-add rack=$RACK $docker_node 2>/dev/null
         fi
         
         services=$(curl --unix-socket /var/run/docker.sock http://x/services 2>/dev/null | jq -r '.[] | select(.Spec.Labels."com.docker.stack.namespace"=="seaweedfs") | .Spec.Name')
@@ -104,6 +104,12 @@ bootstrap_seaweedfs() {
             echo "Deploying seaweedfs stack..."
             env SEAWEEDFS_DIR=$DATA_DIR/seaweedfs docker stack deploy -c $BASEPATH/docker/compose/seaweedfs.yml seaweedfs
             echo "... deployment complete."
+        else
+            echo "Rebalancing seaweedfs stack..."
+            docker service update --force seaweedfs_master
+            docker service update --force seaweedfs_volume
+            docker service update --force seaweedfs_filer
+            echo "... rebalancing complete."
         fi
     fi
 }
