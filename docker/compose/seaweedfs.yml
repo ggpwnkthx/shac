@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   master:
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     image: shac/seaweedfs:latest
     deploy:
       replicas: 3
@@ -16,15 +17,14 @@ services:
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default: 
-        aliases:
-          - {{.Task.Slot}}.{{.Service.Name}}.shac
+      default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
       timeout: 1s
       retries: 30
   volume:
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     image: shac/seaweedfs:latest
     deploy:
       mode: global
@@ -38,15 +38,14 @@ services:
       - ${SEAWEEDFS_DIR}/volumes:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default:
-        aliases:
-          - {{.Task.Slot}}.{{.Service.Name}}.shac
+      default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 1s
       timeout: 1s
       retries: 30
   filer:
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     image: shac/seaweedfs:latest
     deploy:
       mode: global
@@ -59,9 +58,7 @@ services:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      default: 
-        aliases:
-          - {{.Task.Slot}}.{{.Service.Name}}.shac
+      default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
