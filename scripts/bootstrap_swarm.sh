@@ -107,8 +107,6 @@ bootstrap_seaweedfs() {
         else
             echo "Rebalancing seaweedfs stack..."
             docker service update --force seaweedfs_master
-            docker service update --force seaweedfs_volume
-            docker service update --force seaweedfs_filer
             echo "... rebalancing complete."
         fi
     fi
