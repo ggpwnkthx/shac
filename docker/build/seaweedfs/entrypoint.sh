@@ -13,6 +13,8 @@ SERVICE=$(
     jq -r '.Spec.Name' | \
     sed -n -e "s/^$NAMESPACE[_]//p"
 )
+HOST=$($NAMESPACE"_"$SERVICE)
+if [ "$TASK_SLOT" != "null" ]; then HOST=$HOST"_"$TASK_SLOT; fi
 
 # Discover datacenter and rack details via environmental variables or through node labels.
 # If nothing found, unset the variables so seaweedfs uses internal defaults.
@@ -101,13 +103,13 @@ waitForHTTPByConnectionString() {
 # Configure arguments
 case "$SERVICE" in
     'master')
-        ARGS="$ARGS -ip=$IP -port=80 -mdir=/data -volumePreallocate"
+        ARGS="$ARGS -ip=$HOST -port=80 -mdir=/data -volumePreallocate"
         if [ ! -z "$MAX_VOLUME_SIZE" ]; then ARGS="$ARGS -volumeSizeLimitMB=$MAX_VOLUME_SIZE"; fi
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
         ARGS="$ARGS -peers=$(generateMasterConnectionString)"
     ;;
     'volume')
-        ARGS="$ARGS -ip=$IP -port=80 -dir=/data"
+        ARGS="$ARGS -ip=$HOST -port=80 -dir=/data"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
@@ -115,7 +117,7 @@ case "$SERVICE" in
         waitForHTTPByConnectionString $(generateMasterConnectionString)
     ;;
     'filer')
-        ARGS="$ARGS -ip=$IP -port=80"
+        ARGS="$ARGS -ip=$HOST -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         ARGS="$ARGS -master=$(generateMasterConnectionString)"
         waitForHTTPByConnectionString $(generateMasterConnectionString)
