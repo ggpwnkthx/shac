@@ -2,7 +2,7 @@
 
 NAMESPACE=$(
     curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Labels."com.docker.stack.namespace"'
+    jq -r '.Config.Labels."com.docker.stack.namespace"'
 )
 
 getTaskIDsByNamespace() {
