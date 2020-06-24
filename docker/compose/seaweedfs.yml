@@ -33,7 +33,7 @@ services:
     networks:
       default:
         aliases:
-          - {{.Service.Name}}-{{.Task.ID}}
+          - "{{.Service.Name}}-{{.Task.ID}}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
@@ -70,7 +70,7 @@ services:
     networks:
       default:
         aliases:
-          - {{.Service.Name}}-{{.Task.ID}}
+          - "{{.Service.Name}}-{{.Task.ID}}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 1s
@@ -107,7 +107,7 @@ services:
     networks:
       default:
         aliases:
-          - {{.Service.Name}}-{{.Task.ID}}
+          - "{{.Service.Name}}-{{.Task.ID}}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
