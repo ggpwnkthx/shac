@@ -80,7 +80,7 @@ services:
     deploy:
       mode: global
     volumes:
-      - ${SEAWEEDFS_DIR}/hosts:/etc/hosts
+      - ${SEAWEEDFS_DIR}/hosts:/hosts:share
       - /var/run/docker.sock:/var/run/docker.sock:ro
 networks:
   default:

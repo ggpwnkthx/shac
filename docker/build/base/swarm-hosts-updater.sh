@@ -57,9 +57,8 @@ updateHostsFileRecordsByTaskID() {
             hostname=$service
         fi
         echo "[$(date)]: Updating $hostname record..."
-        sed "/$hostname$/d" /etc/hosts > /etc/hosts.tmp
-        echo -e "$ip\t$hostname" >> /etc/hosts.tmp
-        cp -f /etc/hosts.tmp /etc/hosts
+        sed -i "/$hostname$/d" /hosts
+        echo -e "$ip\t$hostname" >> /hosts
     done
 }
 while true; do
