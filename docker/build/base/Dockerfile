@@ -8,3 +8,5 @@ RUN apk --no-cache add bash bind-tools curl git ipcalc jq
 
 COPY github-release-installer.sh /usr/bin/github-release-installer
 RUN chmod +x /usr/bin/github-release-installer
+COPY swarm-hosts-updater.sh /usr/bin/swarm-hosts-updater
+RUN chmod +x /usr/bin/swarm-hosts-updater

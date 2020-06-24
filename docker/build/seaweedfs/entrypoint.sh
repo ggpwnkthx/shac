@@ -1,43 +1,17 @@
 #!/bin/bash
 
-ping -w 10 seaweedfs_master-1
-ping -w 10 seaweedfs_master-2
-ping -w 10 seaweedfs_master-3
-sleep 10000
-
-# Discover container ID
-echo $NAME
-while [ -z "$ID" ]; do
-    ID=$(
-        curl --unix-socket /var/run/docker.sock http://x/containers/json 2>/dev/null | \
-        jq -r --arg NAME $NAME '
-            .[] |
-            select(.Names[] | contains($NAME)) |
-            .Id
-        '
-    )
-done
-# Discover IP address
-IP=$(
-    curl --unix-socket /var/run/docker.sock http://x/networks/seaweedfs_default 2>/dev/null | \
-    jq --arg ID $ID -r '.Containers."\($ID)".IPv4Address' | \
-    awk -F/ '{print $1}'
+NAMESPACE=$(
+    curl --unix-socket /var/run/docker.sock http://x/tasks/$TASK_ID 2>/dev/null | \
+    jq -r '.Spec.ContainerSpec.Labels."com.docker.stack.namespace"'
 )
-# Discover the local node ID
-NODE_ID=$(
-    curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.node.id"'
+TASK_SLOT=$(
+    curl --unix-socket /var/run/docker.sock http://x/tasks/$TASK_ID 2>/dev/null | \
+    jq -r '.Slot'
 )
-# Discover Task ID
-TASK_ID=$(
-    curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.task.id"'
-)
-# Discover service mode by environmental variable or through swarm label
 SERVICE=$(
-    curl --unix-socket /var/run/docker.sock http://x/containers/$ID/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.swarm.service.name"' | \
-    awk -F_ '{print $NF}'
+    curl --unix-socket /var/run/docker.sock http://x/services/$SERVICE_ID 2>/dev/null | \
+    jq -r '.Spec.Name' | \
+    sed -n -e "s/^$NAMESPACE[_]//p"
 )
 
 # Discover datacenter and rack details via environmental variables or through node labels.
@@ -97,31 +71,18 @@ waitForFilerStore() {
     esac
 }
 
-# Swarm functions
-getAllTaskIDsByServiceName() {
-    ids=$( \
-        curl --unix-socket /var/run/docker.sock http://x/tasks 2>/dev/null | \
-        jq -r --arg SERVICE $1 '
-            .[] |
-            select(.Spec.ContainerSpec.Labels."com.docker.stack.namespace"=="seaweedfs") |
-            select(.DesiredState=="running") |
-            select(.Spec.Networks[].Aliases[] | contains($SERVICE)) |
-            .ID
-        '
-    )
-    for id in $ids; do
-        if [ "$id" != "$TASK_ID" ]; then echo $id; fi
-    done
-}
-getMasterConnectionString() {
-    for id in $(getAllTaskIDsByServiceName master); do
-        slot=$(
-            curl --unix-socket /var/run/docker.sock http://x/tasks/$id 2>/dev/null | \
-            jq -r '
-
-            '
-        )
-    done
+generateMasterConnectionString() {
+    for slot in {1..3}; do
+        if [ "$SERVICE" = "master" ]; then
+            if [ $slot -ne $TASK_SLOT ]; then
+                echo seaweedfs_master_$slot:80
+            fi
+        else
+            echo seaweedfs_master_$slot:80
+        fi
+    done | \
+    xargs | \
+    sed -e 's/\s\+/,/g'
 }
 
 waitForHTTP() {
@@ -143,21 +104,21 @@ case "$SERVICE" in
         ARGS="$ARGS -ip=$IP -port=80 -mdir=/data -volumePreallocate"
         if [ ! -z "$MAX_VOLUME_SIZE" ]; then ARGS="$ARGS -volumeSizeLimitMB=$MAX_VOLUME_SIZE"; fi
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
-        ARGS="$ARGS -peers=master-1:80,master-2:80,master-3:80"
+        ARGS="$ARGS -peers=$(generateMasterConnectionString)"
     ;;
     'volume')
         ARGS="$ARGS -ip=$IP -port=80 -dir=/data"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        ARGS="$ARGS -mserver=master-1:80,master-2:80,master-3:80"
-        waitForHTTPByConnectionString master-1:80,master-2:80,master-3:80
+        ARGS="$ARGS -mserver=$(generateMasterConnectionString)"
+        waitForHTTPByConnectionString $(generateMasterConnectionString)
     ;;
     'filer')
         ARGS="$ARGS -ip=$IP -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        ARGS="$ARGS -master=master-1:80,master-2:80,master-3:80"
-        waitForHTTPByConnectionString master-1:80,master-2:80,master-3:80
+        ARGS="$ARGS -master=$(generateMasterConnectionString)"
+        waitForHTTPByConnectionString $(generateMasterConnectionString)
         waitForFilerStore
     ;;
     's3')
@@ -172,5 +133,7 @@ case "$SERVICE" in
         waitForHTTPByConnectionString filer:80
     ;;
 esac
+
+nohup swarm-host-updater $NAMESPACE &
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS

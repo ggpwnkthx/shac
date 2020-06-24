@@ -1,7 +1,6 @@
 version: "3.8"
 services:
   master:
-    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     image: shac/seaweedfs:latest
     deploy:
       replicas: 3
@@ -12,35 +11,21 @@ services:
     environment:
       MAX_VOLUME_SIZE: 128
       REPLICATION: 002
-      SWARM_SERVICE_TASK: |
-        { 
-          "node": "{{.Node.ID}}",
-          "service": { 
-            "id": "{{.Service.ID}}", 
-            "name": "{{.Service.Name}}", 
-            "dns_peers": "tasks.{{.Service.Name}}", 
-          }, 
-          "task": { 
-            "id": "{{.Task.ID}}", 
-            "name": "{{.Task.Name}}", 
-            "slot": {{.Task.Slot}} 
-          }
-        }
+      NODE_ID: "{{.Node.ID}}"
+      TASK_ID: "{{.Task.ID}}"
+      SERVICE_ID: "{{.Service.ID}}"
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      default:
-        aliases:
-          - "{{.Service.Name}}-{{.Task.ID}}"
+      - default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
       timeout: 1s
       retries: 30
   volume:
-    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     image: shac/seaweedfs:latest
     deploy:
       mode: global
@@ -49,41 +34,27 @@ services:
           - "node.role==manager"
     environment:
       MAX_VOLUMES: 4
-      SWARM_SERVICE_TASK: |
-        { 
-          "node": "{{.Node.ID}}",
-          "service": { 
-            "id": "{{.Service.ID}}", 
-            "name": "{{.Service.Name}}", 
-            "dns_peers": "tasks.{{.Service.Name}}", 
-          }, 
-          "task": { 
-            "id": "{{.Task.ID}}", 
-            "name": "{{.Task.Name}}", 
-            "slot": {{.Task.Slot}} 
-          }
-        }
+      NODE_ID: "{{.Node.ID}}"
+      TASK_ID: "{{.Task.ID}}"
+      SERVICE_ID: "{{.Service.ID}}"
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/volumes:/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      default:
-        aliases:
-          - "{{.Service.Name}}-{{.Task.ID}}"
+      - default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 1s
       timeout: 1s
       retries: 30
   filer:
-    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     image: shac/seaweedfs:latest
     deploy:
       mode: global
     environment:
       SWARM_SERVICE_TASK: |
-        { 
+        {
           "node": "{{.Node.ID}}",
           "service": { 
             "id": "{{.Service.ID}}", 
@@ -103,11 +74,9 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/filer:/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      default:
-        aliases:
-          - "{{.Service.Name}}-{{.Task.ID}}"
+      - default
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
