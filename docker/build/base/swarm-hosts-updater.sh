@@ -56,11 +56,13 @@ updateHostsFileRecordsByTaskID() {
         else
             hostname=$service
         fi
+        echo "[$(date)]: Updating $hostname record..."
         sed -i "/$hostname$/d" /etc/hosts
-        echo -e "$ip\t$hostname" >> /etc/hosts_tmp
+        echo -e "$ip\t$hostname" >> /etc/hosts
     done
 }
 while true; do
+    echo "[$(date)]: Updating hosts..."
     updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $NAMESPACE)
     sleep 15
 done
