@@ -59,6 +59,7 @@ updateHostsFile() {
 while true; do
     for tid in $(getTaskIDsByNamespace $@); do 
         updateHostsFile $(generateHostRecordsByTaskID $tid)
+        sleep 1
     done
-    sleep 5
+    sleep 15
 done
