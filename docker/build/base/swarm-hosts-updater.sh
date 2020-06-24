@@ -54,7 +54,7 @@ generateHostRecordsByTaskID() {
 }
 updateHostsFile() {
     grep -ve "$2$" /etc/hosts >/etc/hosts
-    echo "$1\t$2" >> /etc/hosts
+    echo -e "$1\t$2" >> /etc/hosts
 }
 while true; do
     for tid in $(getTaskIDsByNamespace $@); do 
