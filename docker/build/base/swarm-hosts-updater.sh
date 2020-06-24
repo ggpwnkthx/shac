@@ -57,7 +57,7 @@ updateHostsFileRecordsByTaskID() {
             hostname=$service
         fi
         echo "[$(date)]: Updating $hostname record..."
-        sed -i "/$hostname$/d" /hosts
+        sed "/$hostname$/d" /hosts > /hosts
         echo -e "$ip\t$hostname" >> /hosts
     done
 }
