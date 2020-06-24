@@ -1,6 +1,8 @@
 #!/bin/bash
 
-echo $SWARM_SERVICE_TASK
+ping -w 10 seaweedfs_master-1
+ping -w 10 seaweedfs_master-2
+ping -w 10 seaweedfs_master-3
 sleep 10000
 
 # Discover container ID

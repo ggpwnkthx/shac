@@ -19,7 +19,6 @@ services:
             "id": "{{.Service.ID}}", 
             "name": "{{.Service.Name}}", 
             "dns_peers": "tasks.{{.Service.Name}}", 
-            "labels": "{{js .Service.Labels}}" 
           }, 
           "task": { 
             "id": "{{.Task.ID}}", 
@@ -32,7 +31,9 @@ services:
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - default
+      default:
+        aliases:
+          - {{.Service.Name}}-{{.Task.ID}}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
@@ -55,7 +56,6 @@ services:
             "id": "{{.Service.ID}}", 
             "name": "{{.Service.Name}}", 
             "dns_peers": "tasks.{{.Service.Name}}", 
-            "labels": "{{js .Service.Labels}}" 
           }, 
           "task": { 
             "id": "{{.Task.ID}}", 
@@ -68,7 +68,9 @@ services:
       - ${SEAWEEDFS_DIR}/volumes:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - default
+      default:
+        aliases:
+          - {{.Service.Name}}-{{.Task.ID}}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ui/index.html"]
       interval: 1s
@@ -87,7 +89,6 @@ services:
             "id": "{{.Service.ID}}", 
             "name": "{{.Service.Name}}", 
             "dns_peers": "tasks.{{.Service.Name}}", 
-            "labels": "{{js .Service.Labels}}" 
           }, 
           "task": { 
             "id": "{{.Task.ID}}", 
@@ -104,7 +105,9 @@ services:
       - ${SEAWEEDFS_DIR}/filer:/data
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - default
+      default:
+        aliases:
+          - {{.Service.Name}}-{{.Task.ID}}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
