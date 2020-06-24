@@ -56,13 +56,20 @@ updateHostsFileRecordsByTaskID() {
         else
             hostname=$service
         fi
-        echo "[$(date)]: Updating $hostname record..."
-        sed "/$hostname$/d" /hosts > /hosts
-        echo -e "$ip\t$hostname" >> /hosts
+        echo -e "$ip\t$hostname"
     done
 }
 while true; do
-    echo "[$(date)]: Updating hosts..."
-    updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $NAMESPACE)
+    echo "[$(date)]: Updating hosts"
+    records=$(updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $NAMESPACE))
+    cat > /hosts <<EOF
+127.0.0.1       localhost
+::1     localhost ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+$records
+EOF
     sleep 15
 done
