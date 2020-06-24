@@ -10,9 +10,23 @@ services:
         constraints:
           - "node.role==manager"
     environment:
-      - MAX_VOLUME_SIZE=128
-      - REPLICATION=002
-      - NAME=/{{.Service.Name}}.{{.Task.Slot}}
+      MAX_VOLUME_SIZE: 128
+      REPLICATION: 002
+      SWARM_SERVICE_TASK: |
+        { 
+          "node": "{{.Node.ID}}",
+          "service": { 
+            "id": "{{.Service.ID}}", 
+            "name": "{{.Service.Name}}", 
+            "dns_peers": "tasks.{{.Service.Name}}", 
+            "labels": "{{js .Service.Labels}}" 
+          }, 
+          "task": { 
+            "id": "{{.Task.ID}}", 
+            "name": "{{.Task.Name}}", 
+            "slot": {{.Task.Slot}} 
+          }
+        }
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
@@ -33,8 +47,22 @@ services:
         constraints:
           - "node.role==manager"
     environment:
-      - MAX_VOLUMES=4
-      - NAME=/{{.Service.Name}}.{{.Task.Slot}}
+      MAX_VOLUMES: 4
+      SWARM_SERVICE_TASK: |
+        { 
+          "node": "{{.Node.ID}}",
+          "service": { 
+            "id": "{{.Service.ID}}", 
+            "name": "{{.Service.Name}}", 
+            "dns_peers": "tasks.{{.Service.Name}}", 
+            "labels": "{{js .Service.Labels}}" 
+          }, 
+          "task": { 
+            "id": "{{.Task.ID}}", 
+            "name": "{{.Task.Name}}", 
+            "slot": {{.Task.Slot}} 
+          }
+        }
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/volumes:/data
@@ -52,7 +80,21 @@ services:
     deploy:
       mode: global
     environment:
-      - NAME=/{{.Service.Name}}.{{.Task.Slot}}
+      SWARM_SERVICE_TASK: |
+        { 
+          "node": "{{.Node.ID}}",
+          "service": { 
+            "id": "{{.Service.ID}}", 
+            "name": "{{.Service.Name}}", 
+            "dns_peers": "tasks.{{.Service.Name}}", 
+            "labels": "{{js .Service.Labels}}" 
+          }, 
+          "task": { 
+            "id": "{{.Task.ID}}", 
+            "name": "{{.Task.Name}}", 
+            "slot": {{.Task.Slot}} 
+          }
+        }
     configs:
       - source: filer_toml
         target: /etc/seaweedfs/filer.toml

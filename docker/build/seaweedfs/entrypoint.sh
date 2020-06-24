@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo $SWARM_SERVICE_TASK
+sleep 10000
+
 # Discover container ID
 echo $NAME
 while [ -z "$ID" ]; do
@@ -90,6 +93,33 @@ waitForFilerStore() {
             echo "TODO..."
         ;;
     esac
+}
+
+# Swarm functions
+getAllTaskIDsByServiceName() {
+    ids=$( \
+        curl --unix-socket /var/run/docker.sock http://x/tasks 2>/dev/null | \
+        jq -r --arg SERVICE $1 '
+            .[] |
+            select(.Spec.ContainerSpec.Labels."com.docker.stack.namespace"=="seaweedfs") |
+            select(.DesiredState=="running") |
+            select(.Spec.Networks[].Aliases[] | contains($SERVICE)) |
+            .ID
+        '
+    )
+    for id in $ids; do
+        if [ "$id" != "$TASK_ID" ]; then echo $id; fi
+    done
+}
+getMasterConnectionString() {
+    for id in $(getAllTaskIDsByServiceName master); do
+        slot=$(
+            curl --unix-socket /var/run/docker.sock http://x/tasks/$id 2>/dev/null | \
+            jq -r '
+
+            '
+        )
+    done
 }
 
 waitForHTTP() {
