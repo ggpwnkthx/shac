@@ -28,7 +28,6 @@ updateHostsFileRecordsByTaskID() {
             ' | \
             awk -F/ '{print $1}'
         )
-        record=$ip
         sid=$(
             curl --unix-socket /var/run/docker.sock http://x/tasks/$tid 2>/dev/null | \
             jq -r '
@@ -48,12 +47,14 @@ updateHostsFileRecordsByTaskID() {
             '
         )
         if [ "$slot" != "null" ]; then
-            hostname=$record"_"$service"_"$slot; 
+            hostname=$service"_"$slot; 
         else
-            hostname=$record"_"$service
+            hostname=$service
         fi
-        sed -i "/$hostname$/d" /etc/hosts
-        echo -e "$record\t$hostname" >> /etc/hosts
+        sed "/$hostname$/d" /etc/hosts > /etc/hosts_tmp
+        echo -e "$ip\t$hostname" >> /etc/hosts_tmp
+        rm /etc/hosts
+        mv /etc/hosts_tmp /etc/hosts
     done
 }
 while true; do
