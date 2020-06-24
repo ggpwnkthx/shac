@@ -13,7 +13,7 @@ SERVICE=$(
     jq -r '.Spec.Name' | \
     sed -n -e "s/^$NAMESPACE[_]//p"
 )
-HOST=$($NAMESPACE"_"$SERVICE)
+HOST=$NAMESPACE"_"$SERVICE
 if [ "$TASK_SLOT" != "null" ]; then HOST=$HOST"_"$TASK_SLOT; fi
 
 # Discover datacenter and rack details via environmental variables or through node labels.
