@@ -53,7 +53,7 @@ generateHostRecordsByTaskID() {
     done
 }
 updateHostsFile() {
-    grep -ve "$2$" /etc/hosts >/etc/hosts
+    sed -i "/$2$/d" /etc/hosts
     echo -e "$1\t$2" >> /etc/hosts
 }
 while true; do
