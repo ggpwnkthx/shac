@@ -1,5 +1,10 @@
 #!/bin/bash
 
+NAMESPACE=$(
+    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+    jq -r '.Labels."com.docker.stack.namespace"'
+)
+
 getTaskIDsByNamespace() {
     for ns in $@; do
         curl --unix-socket /var/run/docker.sock http://x/tasks 2>/dev/null | \
@@ -51,13 +56,11 @@ updateHostsFileRecordsByTaskID() {
         else
             hostname=$service
         fi
-        sed "/$hostname$/d" /etc/hosts > /etc/hosts_tmp
+        sed -i "/$hostname$/d" /etc/hosts
         echo -e "$ip\t$hostname" >> /etc/hosts_tmp
-        rm /etc/hosts
-        mv /etc/hosts_tmp /etc/hosts
     done
 }
 while true; do
-    updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $@)
+    updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $NAMESPACE)
     sleep 15
 done

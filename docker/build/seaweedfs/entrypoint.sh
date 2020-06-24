@@ -136,6 +136,5 @@ case "$SERVICE" in
     ;;
 esac
 
-nohup swarm-hosts-updater $NAMESPACE &
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS
