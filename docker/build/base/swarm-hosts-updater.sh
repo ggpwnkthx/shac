@@ -11,7 +11,7 @@ getTaskIDsByNamespace() {
         '
     done
 }
-generateHostRecordsByTaskID() {
+updateHostsFileRecordsByTaskID() {
     for tid in $@; do
         ns=$(
             curl --unix-socket /var/run/docker.sock http://x/tasks/$tid 2>/dev/null | \
@@ -41,25 +41,22 @@ generateHostRecordsByTaskID() {
                 .Spec.Name
             '
         )
-        record="$record $service"
         slot=$(
             curl --unix-socket /var/run/docker.sock http://x/tasks/$tid 2>/dev/null | \
             jq -r '
                 .Slot
             '
         )
-        if [ "$slot" != "null" ]; then record=$record"_"$slot; fi
-        echo $record
+        if [ "$slot" != "null" ]; then
+            hostname=$record"_"$service"_"$slot; 
+        else
+            hostname=$record"_"$service
+        fi
+        sed -i "/$hostname$/d" /etc/hosts
+        echo -e "$record\t$hostname" >> /etc/hosts
     done
-}
-updateHostsFile() {
-    sed -i "/$2$/d" /etc/hosts
-    echo -e "$1\t$2" >> /etc/hosts
 }
 while true; do
-    for tid in $(getTaskIDsByNamespace $@); do 
-        updateHostsFile $(generateHostRecordsByTaskID $tid)
-        sleep 1
-    done
+    updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $@)
     sleep 15
 done
