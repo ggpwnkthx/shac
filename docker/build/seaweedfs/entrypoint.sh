@@ -142,7 +142,7 @@ case "$SERVICE" in
 esac
 
 echo "Starting Dynamic Hosts Update Service"
-nohup /usr/bin/swarm-hosts-updater $NAMESPACE
+nohup /usr/bin/swarm-hosts-updater $NAMESPACE &
 
 waitForReady
 
