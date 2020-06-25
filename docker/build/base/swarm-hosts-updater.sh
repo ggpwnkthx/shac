@@ -69,7 +69,6 @@ updateHostsFileRecordsByTaskID() {
     done
 }
 while true; do
-    echo "[$(date)]: Updating hosts"
     original=$(sed '/^# Dynamic Records/q' /etc/hosts | grep -v '# Dynamic Records')
     records=$(updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $NAMESPACE))
     cat > /etc/hosts <<EOF
@@ -77,5 +76,5 @@ $original
 # Dynamic Records
 $records
 EOF
-    sleep 15
+    sleep 1
 done

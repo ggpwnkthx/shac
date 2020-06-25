@@ -130,7 +130,6 @@ case "$SERVICE" in
         ARGS="$ARGS -ip=$HOST -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         ARGS="$ARGS -master=$peers"
-        waitForFilerStore
     ;;
     's3')
         peers="filer:80"
