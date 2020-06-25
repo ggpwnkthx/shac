@@ -1,9 +1,12 @@
 #!/bin/bash
 
-NAMESPACE=$(
-    curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
-    jq -r '.Config.Labels."com.docker.stack.namespace"'
-)
+NAMESPACE=$@
+if [ -z "$1" ]; then
+    NAMESPACE=$(
+        curl --unix-socket /var/run/docker.sock http://x/containers/$(hostname)/json 2>/dev/null | \
+        jq -r '.Config.Labels."com.docker.stack.namespace"'
+    )
+fi
 
 getTaskIDsByNamespace() {
     for ns in $@; do
@@ -61,14 +64,11 @@ updateHostsFileRecordsByTaskID() {
 }
 while true; do
     echo "[$(date)]: Updating hosts"
+    original=$(sed '/^# Dynamic Records/q' /etc/hosts | grep -v '# Dynamic Records')
     records=$(updateHostsFileRecordsByTaskID $(getTaskIDsByNamespace $NAMESPACE))
-    cat > /hosts <<EOF
-127.0.0.1       localhost
-::1     localhost ip6-localhost ip6-loopback
-fe00::0 ip6-localnet
-ff00::0 ip6-mcastprefix
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
+    cat > /etc/hosts <<EOF
+$original
+# Dynamic Records
 $records
 EOF
     sleep 15

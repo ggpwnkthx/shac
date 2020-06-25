@@ -88,14 +88,7 @@ bootstrap_seaweedfs() {
         mkdir -p $DATA_DIR/seaweedfs/volumes
         
         mv $BASEPATH/bin/weed $DATA_DIR/seaweedfs/weed
-        cat > $DATA_DIR/seaweedfs/hosts <<EOF
-127.0.0.1       localhost
-::1     localhost ip6-localhost ip6-loopback
-fe00::0 ip6-localnet
-ff00::0 ip6-mcastprefix
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
-EOF
+        touch $DATA_DIR/seaweedfs/hosts
 
         docker_node=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$(hostname) 2>/dev/null | jq -r '.ID')
         docker_node_datacenter=$(curl --unix-socket /var/run/docker.sock http://x/nodes/$docker_node 2>/dev/null | jq -r '.Spec.Labels.datacenter')

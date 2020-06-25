@@ -136,5 +136,8 @@ case "$SERVICE" in
     ;;
 esac
 
+echo "Starting Dynamic Hosts Update Service"
+nohup /usr/bin/swarm-hosts-updater $NAMESPACE &
+
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS

@@ -17,7 +17,6 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
-      - ${SEAWEEDFS_DIR}/hosts:/etc/hosts:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - default
@@ -41,7 +40,6 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/volumes:/data
-      - ${SEAWEEDFS_DIR}/hosts:/etc/hosts:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - default
@@ -65,7 +63,6 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/filer:/data
-      - ${SEAWEEDFS_DIR}/hosts:/etc/hosts:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - default
@@ -74,14 +71,6 @@ services:
       interval: 1s
       timeout: 1s
       retries: 30
-  hosts:
-    image: shac/base:latest
-    entrypoint: [ "/usr/bin/swarm-hosts-updater" ]
-    deploy:
-      mode: global
-    volumes:
-      - ${SEAWEEDFS_DIR}/hosts:/hosts:share
-      - /var/run/docker.sock:/var/run/docker.sock:ro
 networks:
   default:
     driver: overlay
