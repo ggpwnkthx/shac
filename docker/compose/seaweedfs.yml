@@ -17,7 +17,7 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/master:/data/snapshot
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - default
     healthcheck:
@@ -40,7 +40,7 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/volumes:/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - default
     healthcheck:
@@ -63,7 +63,7 @@ services:
     volumes:
       - ${SEAWEEDFS_DIR}/weed:/usr/bin/weed
       - ${SEAWEEDFS_DIR}/filer:/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - default
     healthcheck:
