@@ -99,45 +99,52 @@ waitForHTTPByConnectionString() {
         waitForHTTP http://$node$2
     done
 }
+waitForReady() {
+    if [ -f /etc/seaweedfs/filer.toml ]; then waitForFilerStore; fi
+    waitForHTTPByConnectionString $peers
+}
 
 # Configure arguments
 case "$SERVICE" in
     'master')
+        peers=$(generateMasterConnectionString)
         ARGS="$ARGS -ip=$HOST -port=80 -mdir=/data -volumePreallocate"
         if [ ! -z "$MAX_VOLUME_SIZE" ]; then ARGS="$ARGS -volumeSizeLimitMB=$MAX_VOLUME_SIZE"; fi
         if [ ! -z "$REPLICATION" ]; then ARGS="$ARGS -defaultReplication=$REPLICATION"; fi
-        ARGS="$ARGS -peers=$(generateMasterConnectionString)"
+        ARGS="$ARGS -peers=$peers"
     ;;
     'volume')
+        peers=$(generateMasterConnectionString)
         ARGS="$ARGS -ip=$HOST -port=80 -dir=/data"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
         if [ ! -z "$RACK" ]; then ARGS="$ARGS -rack=$RACK"; fi
         if [ ! -z "$MAX_VOLUMES" ]; then ARGS="$ARGS -max=$MAX_VOLUMES"; fi
-        ARGS="$ARGS -mserver=$(generateMasterConnectionString)"
-        waitForHTTPByConnectionString $(generateMasterConnectionString)
+        ARGS="$ARGS -mserver=$peers"
     ;;
     'filer')
+        peers=$(generateMasterConnectionString)
         ARGS="$ARGS -ip=$HOST -port=80"
         if [ ! -z "$DATACENTER" ]; then ARGS="$ARGS -dataCenter=$DATACENTER"; fi
-        ARGS="$ARGS -master=$(generateMasterConnectionString)"
-        waitForHTTPByConnectionString $(generateMasterConnectionString)
+        ARGS="$ARGS -master=$peers"
         waitForFilerStore
     ;;
     's3')
+        peers="filer:80"
         if [ -f /run/secret/seaweedfs_key ]; then ARGS="$ARGS -key.file=/run/secret/seaweedfs_key"; fi
         if [ -f /run/secret/seaweedfs_cert ]; then ARGS="$ARGS -cert.file=/run/secret/seaweedfs_cert"; fi
         if [ ! -z "$DOMAIN_NAME" ]; then ARGS="$ARGS --domainName=$DOMAIN_NAME"; fi
-        ARGS="$ARGS -port=80 --filer=filer:80"
-        waitForHTTPByConnectionString filer:80
+        ARGS="$ARGS -port=80 --filer=$peers"
     ;;
     'webdav')
-        ARGS="$ARGS -port=80 -filer=filer:80"
-        waitForHTTPByConnectionString filer:80
+        peers="filer:80"
+        ARGS="$ARGS -port=80 -filer=$peers"
     ;;
 esac
 
 echo "Starting Dynamic Hosts Update Service"
-nohup /usr/bin/swarm-hosts-updater $NAMESPACE &
+nohup /usr/bin/swarm-hosts-updater $NAMESPACE
+
+waitForReady
 
 echo "Running: /usr/bin/weed $SERVICE $ARGS"
 /usr/bin/weed $SERVICE $ARGS
