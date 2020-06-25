@@ -101,7 +101,7 @@ waitForHTTPByConnectionString() {
 }
 waitForReady() {
     if [ -f /etc/seaweedfs/filer.toml ]; then waitForFilerStore; fi
-    waitForHTTPByConnectionString $peers
+    if [ "$SERVICE" != "master" ]; then waitForHTTPByConnectionString $peers; fi
 }
 
 # Configure arguments
