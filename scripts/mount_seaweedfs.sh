@@ -42,6 +42,12 @@ seaweedfs_mount() {
     wait_for_containers $(get_local_container_ids seaweedfs_filer)
     ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
     nohup $2 mount -dir=$1 -filer=$ip:80 -outsideContainerClusterMode &
+    if mountpoint -q -- "$1"; then
+        if [ ! -f $1/fs/ready ]; then
+            mkdir $1/fs
+            touch $1/fs/ready
+        fi
+    fi
 }
 
 seaweedfs_mount $MOUNT_POINT $WEED_BIN
