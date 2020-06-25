@@ -20,8 +20,8 @@ get_gwbridge_ip() {
 }
 # Wait until all given container IDs are in a healthy state
 wait_for_containers() {
-    timeout=120
-    interval=10
+    timeout=30
+    interval=1
     for id in $@; do
         i=0
         echo "Waiting for $id..."
@@ -37,15 +37,17 @@ wait_for_containers() {
     done
 }
 seaweedfs_mount() {
-    while [ -z "$(lsmod | grep '^fuse ')" ]; do modprobe fuse; done
-    while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
-    wait_for_containers $(get_local_container_ids seaweedfs_filer)
-    ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
-    nohup $2 mount -dir=$1 -filer=$ip:80 -outsideContainerClusterMode &
-    if mountpoint -q -- "$1"; then
-        if [ ! -f $1/fs/ready ]; then
-            mkdir $1/fs
-            touch $1/fs/ready
+    if [ ! -f $1/fs/ready ]; then
+        while [ -z "$(lsmod | grep '^fuse ')" ]; do modprobe fuse; done
+        while [ -z "$(get_local_container_ids seaweedfs_filer)" ]; do sleep 5; done;
+        wait_for_containers $(get_local_container_ids seaweedfs_filer)
+        ip=$(get_gwbridge_ip $(get_local_container_ids seaweedfs_filer))
+        nohup $2 mount -dir=$1 -filer=$ip:80 -outsideContainerClusterMode &
+        if mountpoint -q -- "$1"; then
+            if [ ! -f $1/fs/ready ]; then
+                mkdir $1/fs
+                touch $1/fs/ready
+            fi
         fi
     fi
 }
