@@ -57,7 +57,13 @@ updateHostsFileRecordsByTaskID() {
         if [ "$slot" != "null" ]; then
             hostname=$service"_"$slot; 
         else
-            hostname=$service
+            node_id=$(
+                curl --unix-socket /var/run/docker.sock http://x/tasks/$tid 2>/dev/null | \
+                jq -r '
+                    .NodeID
+                '
+            )
+            hostname=$service.$node_id
         fi
         echo -e "$ip\t$hostname"
     done

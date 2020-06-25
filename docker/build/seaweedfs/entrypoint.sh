@@ -14,7 +14,11 @@ SERVICE=$(
     sed -n -e "s/^$NAMESPACE[_]//p"
 )
 HOST=$NAMESPACE"_"$SERVICE
-if [ "$TASK_SLOT" != "null" ]; then HOST=$HOST"_"$TASK_SLOT; fi
+if [ "$TASK_SLOT" != "null" ]; then 
+    HOST=$HOST"_"$TASK_SLOT; 
+else
+    HOST=$HOST.$NODE_ID
+fi
 
 # Discover datacenter and rack details via environmental variables or through node labels.
 # If nothing found, unset the variables so seaweedfs uses internal defaults.
