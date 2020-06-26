@@ -115,10 +115,17 @@ check_prerequisites() {
     start_docker
 }
 
+start_docker_event_handler() {
+    goto=$(pwd)
+    cd $BASEPATH/docker/events
+    nohup $BASEPATH/scripts/docker_event_handler.sh $BASEPATH/docker/events &
+    cd $goto
+}
+
 # Start helper services
 start_local_services() {
     echo "Starting Helper Services..."
-    nohup $BASEPATH/scripts/docker_event_handler.sh $BASEPATH/docker/events &
+    start_docker_event_handler
     echo "...Helper Services Started"
 }
 
