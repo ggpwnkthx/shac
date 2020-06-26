@@ -4,14 +4,15 @@ SCRIPTS_PATH=$1
 
 monitor() {
     cd $SCRIPTS_PATH
-    docker events --format '{{json .}}' | \
+    docker events --format '{{json .}}' --since $(date +"%Y-%m-%dT%H:%M:%S") | \
     while read event; do
         handle=$(echo $event | jq -r '.scope+","+.Type+","+.Action')
         scope=$(echo $handle | awk -F, '{print $1}')
         type=$(echo $handle | awk -F, '{print $2}')
         action=$(echo $handle | awk -F, '{print $3}' | awk -F: '{print $1}')
-        echo $SCRIPTS_PATH/$scope/$type/$action >> $SCRIPTS_PATH/log
         if [ -d $SCRIPTS_PATH/$scope/$type/$action ]; then
+            echo "[$(date +'%Y-%m-%dT%H:%M:%S')] $SCRIPTS_PATH/$scope/$type/$action " >> $SCRIPTS_PATH/log
+            echo "                      $event"
             for script in $SCRIPTS_PATH/$scope/$type/$action/*; do
                 nohup sh -c $script -s $event &
             done
