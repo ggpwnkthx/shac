@@ -2,9 +2,8 @@
 
 # Default variables
 BASEPATH=$1
-DATA_DIR=$2
-CIDR=$3
-DOMAIN=$4
+CIDR=$2
+DOMAIN=$3
 
 # Dynamic Variables
 DOCKER_LOCAL_BRIDGE_CIDR() {

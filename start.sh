@@ -78,6 +78,9 @@ wait_for_docker() {
     unset docker_ready
     while [ -z "$docker_ready" ]; do docker_ready=$(docker ps 2>/dev/null | head -n 1 | grep 'CONTAINER ID'); done
 }
+monitor_docker_events() {
+    nohup $BASEPATH/scripts/docker_event_handler.sh $BASEPATH/docker/events &
+}
 start_docker() {
     if [ -f /etc/init.d/docker ]; then /etc/init.d/docker start; return; fi
     if [ ! -z "$(which systemctl)" ]; then systemctl start docker.service; return; fi
@@ -110,6 +113,11 @@ check_prerequisites() {
         exit 1
     fi
     start_docker
+}
+
+# Start helper services
+start_local_services() {
+    nohup $BASEPATH/scripts/docker_event_handler.sh $BASEPATH/docker/events &
 }
 
 # Use the network-manager image to configure the host's network interfaces
@@ -170,7 +178,6 @@ bootstrap_local() {
     chmod +x $BASEPATH/scripts/bootstrap_local.sh
     $BASEPATH/scripts/bootstrap_local.sh \
         $BASEPATH \
-        $DATA_DIR \
         $CIDR \
         $DOMAIN
 }
@@ -213,7 +220,7 @@ startup_dnsmasq() {
                 --txt-record=_rack._local.$DOMAIN,$RACK
 }
 
-startup_services() {
+startup_swarm_services() {
     startup_dnsmasq
 }
 
@@ -241,11 +248,12 @@ clean_up() {
 startup_sequence() {
     check_prerequisites
     bootstrap_local
+    start_local_services
     startup_networking
     bootstrap_swarm
     mount_distributed_storage
     bootstrap_configs
-    startup_services
+    startup_swarm_services
     clean_up
 }
 
