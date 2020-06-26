@@ -11,9 +11,8 @@ monitor() {
         type=$(echo $handle | awk -F, '{print $2}')
         action=$(echo $handle | awk -F, '{print $3}' | awk -F: '{print $1}')
         if [ -d $SCRIPTS_PATH/$scope/$type/$action ]; then
-            echo "[$(date +'%Y-%m-%dT%H:%M:%S')] $SCRIPTS_PATH/$scope/$type/$action " >> $SCRIPTS_PATH/log
-            echo "                      $event"
             for script in $SCRIPTS_PATH/$scope/$type/$action/*; do
+                if [ ! -x $script ]; then chmod +x $script; fi
                 nohup sh -c $script -s $event &
             done
         fi
