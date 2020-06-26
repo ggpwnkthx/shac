@@ -3,8 +3,7 @@
 SCRIPTS_PATH=$1
 
 monitor() {
-    cd $SCRIPTS_PATH
-    docker events --format '{{json .}}' --since $(date +"%Y-%m-%dT%H:%M:%S") | \
+    docker events --format '{{json .}}' --since $(date +"%Y-%m-%dT%H:%M:%S") 2>/dev/null | \
     while read event; do
         handle=$(echo $event | jq -r '.scope+","+.Type+","+.Action')
         scope=$(echo $handle | awk -F, '{print $1}')

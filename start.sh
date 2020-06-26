@@ -94,11 +94,6 @@ restart_docker() {
     wait_for_docker
 }
 
-# Use docker containers for tool abstraction
-ipcalc() { 
-    docker run -i --rm shac/network-manager ipcalc $@ 
-}
-
 # Add or update config value
 config_set() {
     grep '^$1' $CONFIG_FILE && sed -i "s/^$1.*/$1=$2/" $CONFIG_FILE || echo "$1=$2" >> $CONFIG_FILE

@@ -17,9 +17,6 @@ DOCKER_LOCAL_BRIDGE_CIDR() {
 }
 
 # Use docker containers for tool abstraction
-ipcalc() { 
-    docker run -i --rm shac/base ipcalc $@ 
-}
 shift_ip() { 
     $BASEPATH/scripts/shift-ip.sh $@ 
 }
