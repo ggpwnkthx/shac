@@ -18,6 +18,12 @@ monitor() {
     done
     monitor
 }
+check_lock() {
+    exec 200>$SCRIPTS_PATH/lock
+    flock -n 200 || exit 1
+    pid=$$
+    echo $pid 1>&200
+}
 
 # Exit if no handler script path provided
 if [ -z "$SCRIPTS_PATH" ]; then 
@@ -26,7 +32,7 @@ if [ -z "$SCRIPTS_PATH" ]; then
 fi
 
 # Exit if another handler is running
-flock -n $SCRIPTS_PATH/lock || exit 1
+check_lock
 
 # Start
 monitor
