@@ -13,7 +13,7 @@ monitor() {
         if [ -d $SCRIPTS_PATH/$scope/$type/$action ]; then
             for script in $SCRIPTS_PATH/$scope/$type/$action/*; do
                 if [ ! -x $script ]; then chmod +x $script; fi
-                nohup sh -c $script -s $event &
+                nohup sh -c $script -s "'$event'" &
             done
         fi
     done

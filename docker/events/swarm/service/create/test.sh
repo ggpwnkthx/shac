@@ -1,3 +1,4 @@
 #!/bin/sh
-echo $1
-echo $@
+date
+echo "first: $1"
+echo "all  : $@"
