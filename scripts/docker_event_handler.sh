@@ -3,6 +3,7 @@
 SCRIPTS_PATH=$1
 
 monitor() {
+    cd $SCRIPTS_PATH
     docker events --format '{{json .}}' | \
     while read event; do
         handle=$(echo $event | jq -r '.scope+","+.Type+","+.Action')
