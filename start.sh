@@ -117,7 +117,9 @@ check_prerequisites() {
 
 # Start helper services
 start_local_services() {
+    echo "Starting Helper Services..."
     nohup $BASEPATH/scripts/docker_event_handler.sh $BASEPATH/docker/events &
+    echo "...Helper Services Started"
 }
 
 # Use the network-manager image to configure the host's network interfaces

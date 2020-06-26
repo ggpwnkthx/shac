@@ -20,7 +20,10 @@ monitor() {
 }
 
 # Exit if no handler script path provided
-if [ -z "$SCRIPTS_PATH" ]; then exit 1; fi
+if [ -z "$SCRIPTS_PATH" ]; then 
+    echo "No scripts path provided."
+    exit 1; 
+fi
 
 # Exit if another handler is running
 flock -n $SCRIPTS_PATH/lock || exit 1
