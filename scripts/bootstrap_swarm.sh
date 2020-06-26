@@ -28,7 +28,7 @@ shift_ip() {
     $BASEPATH/scripts/shift-ip.sh $@ 
 }
 digg() {
-    docker run -i --rm --net=host shac/base dig $@ | \
+    dig $@ | \
     grep "^$1" | \
     sed -n -e "s/.*$2//p" | \
     xargs
