@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  etcd:
+  node:
     image: shac/etcd:latest
     deploy:
       mode: global

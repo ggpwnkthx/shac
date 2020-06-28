@@ -73,12 +73,14 @@ join_docker_swarm() {
     docker swarm join --token $DOCKER_SWARM_MANAGER_TOKEN $DOCKER_SWARM_IP:$DOCKER_SWARM_PORT
 }
 
+bootstrap_etcd() {
+    echo 
+}
 bootstrap_seaweedfs() {
     if [ -f $BASEPATH/bin/weed ]; then 
         DATACENTER=${DATACENTER:="default_dc"}
         RACK=${RACK:="default_rk"}
 
-        mkdir -p $DATA_DIR/seaweedfs/etcd
         mkdir -p $DATA_DIR/seaweedfs/filer
         mkdir -p $DATA_DIR/seaweedfs/master
         mkdir -p $DATA_DIR/seaweedfs/mount
@@ -124,6 +126,7 @@ bootstrap() {
         fi
         echo "... finished swarm bootstrap."
     fi
+    bootstrap_etcd
     bootstrap_seaweedfs
 }
 
