@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  etcd:
+    image: shac/etcd:latest
+    deploy:
+      mode: global
+    environment:
+      SERVICE_NAME: "etcd"
+      MIN_SEEDS_COUNT: 1
+    volumes:
+      - ${CLUSTER_DIR}/etcd:/data
+networks:
+  default:
+    driver: overlay
+    attachable: true
