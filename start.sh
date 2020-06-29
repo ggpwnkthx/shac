@@ -206,7 +206,6 @@ startup_dnsmasq() {
     docker run -d \
         --net=host \
         --cap-add=NET_ADMIN \
-        -v $DATA_DIR/seaweedfs/mount/services/dnsmasq:/mnt \
         shac/network-manager \
             dnsmasq -d \
                 --bogus-priv \
